@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Bureau — your AI workforce</title>
+<meta name="theme-color" content="#0A0D13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>html,body{margin:0;padding:0;background:#0A0D13}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const LS_KEY="bureau_v1";
+function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||null; }catch(e){ return null; } }
+
+const { useState, useEffect, useRef, useMemo } = React;
+
+// ============================================================
+// THE BUREAU — your AI workforce · polished edition
+// Fixed DEGREE (expertise) + per-project EXPERIENCE.
+// Hire, deploy, move, clone. Agents are powered by Claude.
+// ============================================================
+
+const STYLES = `
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --ink:#0A0D13; --panel:#131824; --panel2:#1A2130; --panel3:#212A3D; --line:#28324A; --line2:#334061;
+  --txt:#EAEEF6; --mut:#8D97AC; --mut2:#5D6780;
+  --violet:#7C5CFF; --violet2:#A08CFF; --gold:#F5B544; --green:#3DDC97; --red:#FF6B6B;
+}
+*{box-sizing:border-box}
+.bureau{font-family:'Inter',system-ui,sans-serif;background:var(--ink);color:var(--txt);min-height:100vh;-webkit-font-smoothing:antialiased;position:relative}
+.bureau::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(700px 420px at 85% -10%,rgba(124,92,255,.13),transparent 60%),
+             radial-gradient(560px 380px at -10% 22%,rgba(245,181,68,.05),transparent 55%)}
+.bureau>*{position:relative;z-index:1}
+.bureau button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.bureau button:focus-visible,.bureau input:focus-visible,.bureau textarea:focus-visible{outline:2px solid var(--violet2);outline-offset:2px}
+.mono{font-family:'JetBrains Mono',monospace}
+.disp{font-family:'Space Grotesk',sans-serif}
+
+/* shell */
+.wrap{max-width:1100px;margin:0 auto;padding:0 14px 96px}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(10,13,19,.82);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1100px;margin:0 auto;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mark{font-family:'Space Grotesk';font-weight:700;letter-spacing:.16em;font-size:15px;display:flex;align-items:center;gap:9px}
+.mark .dot{width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,var(--violet),var(--violet2));box-shadow:0 0 14px rgba(124,92,255,.8);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 8px rgba(124,92,255,.5)}50%{box-shadow:0 0 18px rgba(124,92,255,.95)}}
+.mark small{color:var(--mut);font-weight:500;letter-spacing:.04em;font-size:10px;margin-left:2px}
+.iconbtn{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:var(--txt);transition:.15s}
+.iconbtn:hover{border-color:var(--violet);color:var(--violet2);transform:translateY(-1px)}
+
+/* stats strip */
+.stats{display:flex;gap:9px;margin:16px 0 2px;overflow-x:auto;scrollbar-width:none}
+.stats::-webkit-scrollbar{display:none}
+.stat{flex:1;min-width:104px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:12px 13px}
+.stat .n{font-family:'Space Grotesk';font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.stat .l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-top:6px;font-family:'JetBrains Mono'}
+.stat .n em{font-style:normal;color:var(--gold);font-size:13px;margin-left:3px}
+
+/* chips nav */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:13px 0 3px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--mut);font-size:13px;font-weight:500;white-space:nowrap;transition:.16s}
+.chip:hover{color:var(--txt);border-color:var(--line2)}
+.chip.on{background:linear-gradient(135deg,var(--violet),#6a4de0);border-color:transparent;color:#fff;box-shadow:0 6px 22px rgba(124,92,255,.4)}
+.chip.hq.on{background:linear-gradient(135deg,#2c2350,#1B2130);border:1px solid var(--violet);box-shadow:0 6px 22px rgba(124,92,255,.28)}
+.chip .emo{font-size:14px}
+.chip .cnt{font-family:'JetBrains Mono';font-size:10px;background:rgba(255,255,255,.14);border-radius:6px;padding:1px 6px}
+.chip:not(.on) .cnt{background:var(--panel3);color:var(--mut)}
+.chip-add{flex:0 0 auto;width:35px;height:35px;border-radius:12px;border:1px dashed var(--line2);color:var(--mut);font-size:18px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.chip-add:hover{border-color:var(--violet);color:var(--violet2)}
+
+/* section head */
+.shead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:20px 0 16px}
+.shead h2{font-family:'Space Grotesk';font-size:23px;font-weight:700;letter-spacing:-.015em;line-height:1.1}
+.shead p{color:var(--mut);font-size:13px;margin-top:5px;max-width:48ch;line-height:1.5}
+.eyebrow{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--violet2);font-weight:600;font-family:'JetBrains Mono'}
+.linkish{color:var(--violet2);background:none;border:none;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:0}
+
+/* grid */
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1fr}}
+
+/* agent card */
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.card{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel) 70%);border:1px solid var(--line);border-radius:17px;padding:16px;transition:transform .18s,border-color .18s,box-shadow .18s;overflow:hidden;animation:rise .45s both}
+.card:hover{border-color:var(--cardc,var(--violet));transform:translateY(-3px);box-shadow:0 14px 34px -14px color-mix(in srgb,var(--cardc,#7C5CFF) 45%,transparent)}
+.card .glow{position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,transparent,var(--cardc,var(--violet)) 30%,var(--cardc,var(--violet)) 70%,transparent)}
+.card-top{display:flex;gap:12px;align-items:flex-start}
+.av{flex:0 0 auto;width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;background:linear-gradient(135deg,var(--avbg,#222),var(--panel3));border:1px solid var(--cardc,var(--line));box-shadow:inset 0 0 14px color-mix(in srgb,var(--cardc,#7C5CFF) 18%,transparent);position:relative}
+.av .on{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid var(--panel);box-shadow:0 0 8px rgba(61,220,151,.7)}
+.card h3{font-family:'Space Grotesk';font-size:16.5px;font-weight:600;line-height:1.15}
+.role{color:var(--cardc,var(--violet2));font-size:12px;font-weight:600;margin-top:2px}
+.degree-badge{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:3px 9px;border-radius:8px;background:rgba(245,181,68,.09);border:1px solid rgba(245,181,68,.28);color:var(--gold);font-size:10px;font-weight:600;font-family:'JetBrains Mono';letter-spacing:.04em}
+.tag{color:var(--mut);font-size:12.5px;line-height:1.5;margin-top:11px}
+
+/* xp */
+.xpwrap{margin-top:13px}
+.xprow{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;font-family:'JetBrains Mono';color:var(--mut);margin-bottom:6px}
+.rank{color:var(--txt);font-weight:600;letter-spacing:.03em}
+.bar{height:6px;border-radius:6px;background:var(--panel3);overflow:hidden;position:relative}
+.bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold),#ffd98f);transition:width .7s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+.bar i::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);animation:shine 2.8s ease-in-out infinite}
+@keyframes shine{0%{transform:translateX(-100%)}55%,100%{transform:translateX(100%)}}
+
+.acts{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+.act{flex:1;min-width:0;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel3);font-size:12.5px;font-weight:600;color:var(--txt);display:flex;align-items:center;justify-content:center;gap:5px;transition:.15s}
+.act:hover{border-color:var(--violet);color:var(--violet2)}
+.act.primary{background:linear-gradient(135deg,var(--violet),#6a4de0);border-color:transparent;color:#fff}
+.act.primary:hover{filter:brightness(1.12);color:#fff}
+.act.primary:disabled{opacity:.45;filter:none}
+.act.sm{flex:0 0 auto;padding:10px 12px}
+
+/* empty */
+.empty{text-align:center;padding:50px 18px;border:1px dashed var(--line2);border-radius:18px;color:var(--mut);animation:rise .4s both}
+.empty .big{font-size:36px;margin-bottom:10px}
+.empty h3{font-family:'Space Grotesk';color:var(--txt);font-size:17px;margin-bottom:6px}
+.empty .act{display:inline-flex;flex:0 0 auto;margin-top:16px;padding:11px 20px}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(4,6,10,.74);backdrop-filter:blur(5px);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+@media(min-width:680px){.scrim{align-items:center;padding:24px}}
+@keyframes fade{from{opacity:0}}
+.sheet{width:100%;max-width:640px;max-height:92vh;background:var(--panel);border:1px solid var(--line2);border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:slide .28s cubic-bezier(.2,.8,.2,1);box-shadow:0 -18px 60px rgba(0,0,0,.5)}
+@media(min-width:680px){.sheet{border-radius:22px;max-height:86vh;box-shadow:0 24px 70px rgba(0,0,0,.6)}}
+@keyframes slide{from{transform:translateY(44px);opacity:.5}}
+.sheet-grip{width:38px;height:4px;border-radius:4px;background:var(--line2);margin:9px auto 0}
+.sheet-h{padding:12px 16px 14px;border-bottom:1px solid var(--line);display:flex;gap:13px;align-items:center}
+.sheet-h .x{margin-left:auto;width:33px;height:33px;border-radius:10px;border:1px solid var(--line);font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--mut);flex:0 0 auto}
+.sheet-h .x:hover{color:var(--txt);border-color:var(--violet)}
+.sheet-body{overflow-y:auto}
+
+/* workspace tabs */
+.wtabs{display:flex;gap:4px;padding:11px 14px 0;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);z-index:2}
+.wtab{padding:9px 13px;font-size:12.5px;font-weight:600;color:var(--mut);border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}
+.wtab.on{color:var(--txt);border-color:var(--violet)}
+.wpane{padding:16px 16px 22px}
+
+/* chat */
+.chatscroll{padding:14px 14px 6px;display:flex;flex-direction:column;gap:11px;min-height:220px}
+.msg{max-width:86%;padding:11px 14px;border-radius:15px;font-size:14px;line-height:1.55;word-break:break-word;animation:rise .3s both}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--violet),#6a4de0);color:#fff;border-bottom-right-radius:5px;white-space:pre-wrap}
+.msg.ai{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:5px}
+.msg.ai .who{font-size:10.5px;font-family:'JetBrains Mono';color:var(--cardc,var(--violet2));margin-bottom:6px;font-weight:600;letter-spacing:.05em}
+.md p{margin:0 0 8px}.md p:last-child{margin:0}
+.md ul,.md ol{margin:2px 0 8px;padding-left:19px}.md li{margin:3px 0}
+.md h1,.md h2,.md h3{font-family:'Space Grotesk';font-size:13.5px;letter-spacing:.02em;margin:10px 0 5px;color:var(--txt)}
+.md code{font-family:'JetBrains Mono';font-size:12px;background:var(--panel3);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.md b{color:#fff}
+.typing{display:inline-flex;gap:4px;padding:4px 0}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--mut);animation:bob 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bob{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.qp{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.qp button{padding:9px 13px;border-radius:11px;border:1px solid var(--line2);background:var(--panel2);color:var(--txt);font-size:12.5px;font-weight:500;transition:.15s}
+.qp button:hover{border-color:var(--cardc,var(--violet));color:var(--cardc,var(--violet2))}
+.composer{display:flex;gap:8px;padding:11px 14px;border-top:1px solid var(--line);align-items:flex-end;background:var(--panel)}
+.composer textarea{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:13px;color:var(--txt);font-family:inherit;font-size:14px;padding:11px 13px;resize:none;max-height:120px;line-height:1.4;outline:none;transition:border-color .15s}
+.composer textarea:focus{border-color:var(--violet)}
+.send{flex:0 0 auto;width:43px;height:43px;border-radius:13px;background:linear-gradient(135deg,var(--violet),#6a4de0);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.send:hover:not(:disabled){filter:brightness(1.12)}
+.send:disabled{opacity:.4}
+
+/* log */
+.logitem{border-left:2px solid var(--line);padding:0 0 17px 15px;position:relative;animation:rise .35s both}
+.logitem:before{content:'';position:absolute;left:-5px;top:3px;width:8px;height:8px;border-radius:50%;background:var(--cardc,var(--violet));box-shadow:0 0 8px color-mix(in srgb,var(--cardc,#7C5CFF) 60%,transparent)}
+.logitem .d{font-size:10.5px;font-family:'JetBrains Mono';color:var(--mut);letter-spacing:.04em}
+.logitem .k{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:6px;margin-left:7px}
+.logitem .t{font-size:13px;line-height:1.6;color:var(--txt);margin-top:6px}
+
+/* briefing cta */
+.brief{background:linear-gradient(135deg,rgba(124,92,255,.14),rgba(245,181,68,.07));border:1px solid var(--line2);border-radius:15px;padding:14px;display:flex;gap:13px;align-items:center;margin-bottom:16px}
+.brief h4{font-family:'Space Grotesk';font-size:14px;margin-bottom:3px}
+.brief p{font-size:12px;color:var(--mut);line-height:1.45}
+.brief .act{flex:0 0 auto;margin-top:0;padding:10px 15px;white-space:nowrap}
+
+/* fields */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px}
+.field input,.field textarea,.field select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--txt);font-family:inherit;font-size:14px;padding:11px 13px;outline:none;transition:border-color .15s}
+.field input:focus,.field textarea:focus{border-color:var(--violet)}
+.emojirow{display:flex;gap:7px;flex-wrap:wrap}
+.emojirow button{width:41px;height:41px;border-radius:11px;border:1px solid var(--line);background:var(--panel2);font-size:20px;transition:.13s}
+.emojirow button.on{border-color:var(--violet);background:rgba(124,92,255,.16);transform:scale(1.06)}
+
+/* picker */
+.plist{display:flex;flex-direction:column;gap:9px}
+.prow{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--panel2);text-align:left;transition:.15s;animation:rise .35s both}
+.prow:hover{border-color:var(--violet);transform:translateX(2px)}
+.prow .pe{font-size:20px}
+.prow .pn{font-weight:600;font-size:14px}
+.prow .ps{font-size:11.5px;color:var(--mut);margin-top:1px}
+
+/* toast */
+.toasts{position:fixed;left:0;right:0;bottom:18px;z-index:80;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{background:var(--panel3);border:1px solid var(--violet);border-radius:13px;padding:11px 17px;font-size:13px;font-weight:600;box-shadow:0 12px 34px rgba(0,0,0,.55);animation:pop .32s cubic-bezier(.2,.8,.2,1);display:flex;gap:9px;align-items:center}
+.toast.gold{border-color:var(--gold);color:var(--gold);box-shadow:0 12px 34px rgba(245,181,68,.18)}
+@keyframes pop{from{transform:translateY(16px) scale(.96);opacity:0}}
+
+.help{font-size:12px;color:var(--mut2);text-align:center;padding:22px 12px 4px;line-height:1.55}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+`;
+
+// ---- roster (starting hires) ----
+const ARCH = [
+  { id:"george", name:"George", role:"Advertising", emoji:"📣", color:"#FF7A59",
+    tag:"Hooks, ad creative & campaigns that get a response.",
+    degree:"a direct-response advertising expert: scroll-stopping hooks, ad creative, headlines, campaign concepts, channel selection (Meta, Google, TikTok), creative angles, and testing. You think in measurable response, not awareness fluff." },
+  { id:"sam", name:"Sam", role:"Marketing", emoji:"📈", color:"#FF5CA8",
+    tag:"Positioning, funnels & the whole buying journey.",
+    degree:"a brand & growth marketing strategist: positioning, messaging, ICP/audience, funnels, content strategy, launch sequencing, and retention. You connect brand story to a path that ends in a sale." },
+  { id:"rick", name:"Rick", role:"Operations", emoji:"⚙️", color:"#5BA8FF",
+    tag:"SOPs, logistics & killing bottlenecks.",
+    degree:"an operations & systems expert: SOPs, process design, project management, logistics, vendor coordination, and removing bottlenecks. You turn chaos into repeatable checklists." },
+  { id:"gary", name:"Gary", role:"Inventory", emoji:"📦", color:"#F5B544",
+    tag:"Stock levels, reorder points & forecasting.",
+    degree:"an inventory & supply-chain manager: stock levels, reorder points, par levels, forecasting, SKU organization, shrinkage, and multi-location tracking. You keep the right amount of the right thing in the right place." },
+  { id:"lucas", name:"Lucas", role:"Research & Strategy", emoji:"🧠", color:"#9D85FF",
+    tag:"The brains — hard problems, clear decisions.",
+    degree:"a research analyst & strategist, the brains of the team: deep analysis, breaking down hard problems, comparing options with tradeoffs, technical reasoning, and turning messy questions into clear decisions." },
+  { id:"nina", name:"Nina", role:"Finance", emoji:"💰", color:"#3DDC97",
+    tag:"Pricing, margins & cash flow that add up.",
+    degree:"a finance & unit-economics expert: pricing, margins, cash flow, budgets, break-even, COGS, and simple financial models. You make the numbers tell the truth." },
+  { id:"ivy", name:"Ivy", role:"Sales", emoji:"🤝", color:"#FF8FA3",
+    tag:"Outreach, scripts & closing without the ick.",
+    degree:"a sales expert: outreach, scripts, objection handling, offers, follow-up cadences, and closing. You turn interest into revenue without being pushy." },
+  { id:"mara", name:"Mara", role:"Content & Copy", emoji:"✍️", color:"#4FD1C5",
+    tag:"Words that sell and still sound human.",
+    degree:"a copywriter & content strategist: product descriptions, emails, social posts, landing-page copy, SEO, and brand voice. You write words that sell and sound human." },
+  { id:"theo", name:"Theo", role:"Product & Design", emoji:"🎨", color:"#56CCF2",
+    tag:"Features & flows people find obvious.",
+    degree:"a product & UX/design expert: features, user flows, prototypes, information hierarchy, and customer feedback loops. You make products people find obvious to use." },
+  { id:"cole", name:"Cole", role:"Customer Experience", emoji:"💬", color:"#7C8CFF",
+    tag:"Support, reviews & turning buyers into fans.",
+    degree:"a customer experience & retention expert: support, FAQs, reviews, returns, loyalty, and turning one-time buyers into repeat fans. You protect the relationship after the sale." },
+];
+
+// ---- hiring hall candidates ----
+const CANDIDATES = [
+  { id:"dot", name:"Dot", role:"Data & Analytics", emoji:"📊", color:"#56CCF2",
+    tag:"Metrics, dashboards & A/B tests.",
+    degree:"a data & analytics expert: metrics, KPIs, dashboards, A/B tests, cohort analysis, and turning numbers into clear decisions." },
+  { id:"quinn", name:"Quinn", role:"SEO & Search", emoji:"🔍", color:"#3DDC97",
+    tag:"Get found on Google, Etsy & marketplaces.",
+    degree:"an SEO specialist: keyword research, on-page optimization, content gaps, technical SEO, and ranking on Google and marketplaces like Etsy and Amazon." },
+  { id:"remy", name:"Remy", role:"Social Media", emoji:"📱", color:"#FF5CA8",
+    tag:"Calendars, hooks & engaged followings.",
+    degree:"a social media manager: content calendars, short-form video hooks, captions, posting cadence, and growing engaged audiences on Instagram, TikTok, and Facebook." },
+  { id:"elle", name:"Elle", role:"Email Marketing", emoji:"📧", color:"#F5B544",
+    tag:"Flows, broadcasts & abandoned carts.",
+    degree:"an email marketing expert: welcome flows, abandoned-cart sequences, broadcasts, segmentation, subject lines, and lifecycle automation." },
+  { id:"vera", name:"Vera", role:"Brand Visuals", emoji:"📷", color:"#FF7A59",
+    tag:"Photo direction & a consistent look.",
+    degree:"a brand visuals & photography director: product photo direction, moodboards, shot lists, art direction, and a consistent visual identity across a brand." },
+  { id:"wade", name:"Wade", role:"Web & App Dev", emoji:"💻", color:"#7C8CFF",
+    tag:"Landing pages, sites & shipping fast.",
+    degree:"a web & app developer: landing pages, no/low-code builds, Shopify and site setup, integrations, and shipping simple working software fast." },
+  { id:"knox", name:"Knox", role:"Automation & AI", emoji:"🤖", color:"#9D85FF",
+    tag:"Kill repetitive work with bots & pipelines.",
+    degree:"an automation & AI workflow expert: connecting tools, removing repetitive work, building bots and pipelines (Zapier/Make style), and AI-assisted processes." },
+  { id:"bea", name:"Bea", role:"Bookkeeping", emoji:"🧾", color:"#4FD1C5",
+    tag:"Clean books, expenses & tax-ready.",
+    degree:"a bookkeeping & small-business finance expert: tracking income and expenses, categorizing, sales tax, simple P&L, and keeping the books clean for tax time." },
+  { id:"max", name:"Max", role:"Project Manager", emoji:"🗂️", color:"#5BA8FF",
+    tag:"Goals into timelines that get finished.",
+    degree:"a project manager: turning goals into timelines, task breakdowns, owners, deadlines, and weekly plans that actually get finished." },
+  { id:"iris", name:"Iris", role:"PR & Press", emoji:"📰", color:"#FF8FA3",
+    tag:"Angles, outreach & earned attention.",
+    degree:"a PR & press expert: pitch angles, press releases, local and niche media outreach, founder story, and earning attention without paid ads." },
+  { id:"pip", name:"Pip", role:"Partnerships", emoji:"🌟", color:"#E0A3FF",
+    tag:"Collabs, affiliates & win-win deals.",
+    degree:"a partnerships & influencer expert: finding collaborators, outreach offers, affiliate setups, gifting strategy, and win-win deals that grow reach." },
+  { id:"pax", name:"Pax", role:"Legal & Compliance", emoji:"⚖️", color:"#9AA3B5",
+    tag:"Contracts & risk, in plain English.",
+    degree:"a plain-English legal & compliance guide: contracts, terms, trademarks, business-structure basics, and policy templates. You flag risks and explain options — not formal legal advice." },
+];
+
+const RANKS = [
+  { min:0, t:"Intern" }, { min:120, t:"Associate" }, { min:300, t:"Specialist" },
+  { min:560, t:"Senior" }, { min:900, t:"Lead" }, { min:1320, t:"Principal" },
+  { min:1850, t:"Partner" }, { min:2500, t:"Legend" },
+];
+function rankOf(xp){ let r=RANKS[0],idx=0; for(let j=0;j<RANKS.length;j++){ if(xp>=RANKS[j].min){r=RANKS[j];idx=j;} } const next=RANKS[idx+1]; const lo=r.min, hi=next?next.min:r.min+600; const pct=next?Math.min(100,Math.round(((xp-lo)/(hi-lo))*100)):100; return {title:r.t,pct,next:next?next.t:null,toNext:next?hi-xp:0,level:idx+1}; }
+
+const QUICK_PROMPTS = {
+  george:["Write 5 hook ideas for this project","Plan a $200 test campaign","What's my best first ad channel?"],
+  sam:["Who exactly is my customer?","Map my funnel start to finish","Draft my positioning statement"],
+  rick:["Find my biggest bottleneck","Write an SOP for onboarding","Plan my week for max output"],
+  gary:["Set reorder points for my stock","Design my SKU naming system","How do I track two locations?"],
+  lucas:["What's the riskiest assumption here?","Compare my top 2 options","Break this project into phases"],
+  nina:["Check my pricing & margins","Where's my break-even?","Build a simple monthly budget"],
+  ivy:["Write my outreach opener","Handle my top 3 objections","Design a follow-up cadence"],
+  mara:["Write my product description","Draft this week's posts","Punch up my landing page copy"],
+  theo:["What feature ships first?","Simplify my main user flow","Critique my current design"],
+  cole:["Write my FAQ","Turn buyers into repeat fans","Draft a review-request message"],
+};
+const QUICK_FALLBACK = ["What should I do first?","Give me a 7-day plan","What am I missing?"];
+
+const uid = () => Math.random().toString(36).slice(2,9);
+const today = () => new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+const KIND_COLOR = { chat:"#7C5CFF", briefing:"#F5B544", deploy:"#3DDC97", task:"#56CCF2" };
+
+// ---- markdown-lite renderer for agent replies ----
+function inline(text, key){
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean);
+  return parts.map((p,i)=>{
+    if(p.startsWith("**")&&p.endsWith("**")) return <b key={key+"-"+i}>{p.slice(2,-2)}</b>;
+    if(p.startsWith("`")&&p.endsWith("`")) return <code key={key+"-"+i}>{p.slice(1,-1)}</code>;
+    return p;
+  });
+}
+function Markdown({text}){
+  const lines = (text||"").split("\n");
+  const out=[]; let list=null, listType=null;
+  const flush=()=>{ if(list){ out.push(listType==="ol"
+      ? <ol key={"l"+out.length}>{list}</ol> : <ul key={"l"+out.length}>{list}</ul>); list=null; listType=null; } };
+  lines.forEach((raw,i)=>{
+    const line=raw.trimEnd();
+    const bullet=line.match(/^\s*([-*•])\s+(.*)/);
+    const num=line.match(/^\s*(\d+)[.)]\s+(.*)/);
+    const head=line.match(/^(#{1,3})\s+(.*)/);
+    if(bullet){ if(listType!=="ul"){flush();listType="ul";list=[];} list.push(<li key={i}>{inline(bullet[2],i)}</li>); return; }
+    if(num){ if(listType!=="ol"){flush();listType="ol";list=[];} list.push(<li key={i}>{inline(num[2],i)}</li>); return; }
+    flush();
+    if(head){ out.push(<h3 key={i}>{inline(head[2],i)}</h3>); return; }
+    if(line.trim()==="") return;
+    out.push(<p key={i}>{inline(line,i)}</p>);
+  });
+  flush();
+  return <div className="md">{out}</div>;
+}
+
+// ---- AI ----
+async function callAgent(system, history){
+  const key=(localStorage.getItem('bureau_key')||'').trim();
+  const model=(localStorage.getItem('bureau_model')||'claude-sonnet-4-6').trim()||'claude-sonnet-4-6';
+  if(!key) return "I don't have a brain hooked up yet — tap the ⚙️ button (top right) and paste your Anthropic API key so I can start thinking.";
+  try{
+    const res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body: JSON.stringify({ model, max_tokens:1000, system, messages:history })
+    });
+    const data = await res.json();
+    if(data.error) return "⚠️ "+(data.error.message||"API error")+" — check your key and model name in ⚙️ settings.";
+    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+    return text || "Hmm — I came back empty. Send that again?";
+  }catch(e){ return "I couldn't reach the model. Check your internet, or your key in ⚙️ settings."; }
+}
+function buildSystem(arch, inst, project, ownerName){
+  const recent = (inst.log||[]).slice(-6).reverse()
+    .map(l=>`• ${l.date} [${l.kind}] ${l.text.slice(0,220)}`).join("\n") || "• (no field experience logged yet — this is your first work here)";
+  return `You are ${inst.name}, ${ownerName?ownerName+"'s ":""}${arch.role} specialist working on the project "${project.name}".
+Your degree (fixed expertise, never changes): You are ${arch.degree}
+Project context: ${project.desc||"(no description provided)"}
+Your accumulated field experience on THIS project (most recent first):
+${recent}
+
+Voice: a seasoned, practical ${arch.role} pro who already knows this project. Be specific and actionable — real outputs, named tactics, concrete next steps — not generic advice. Use short paragraphs and bullet lists where they help. Keep it tight. Ask at most ONE clarifying question and only if you're genuinely blocked; otherwise just do the work.`;
+}
+
+// ============================================================
+function App(){
+  const saved = loadState();
+  const [projects,setProjects] = useState(saved?.projects || [
+    { id:"p1", name:"My First Project", emoji:"🚀", desc:"A sample project so the Bureau isn't empty. Rename it or make your own from the + button." },
+  ]);
+  const [instances,setInstances] = useState(saved?.instances || [
+    { id:uid(), archId:"lucas", projectId:"p1", name:"Lucas", xp:340, chat:[],
+      log:[{date:today(),kind:"deploy",text:"Deployed to My First Project as Research & Strategy lead."},
+           {date:today(),kind:"briefing",text:"Mapped the project into 3 phases: validate, build, launch. Flagged that the riskiest assumption is demand — recommended testing the offer before building more."}] },
+    { id:uid(), archId:"george", projectId:"p1", name:"George", xp:90, chat:[],
+      log:[{date:today(),kind:"deploy",text:"Deployed to My First Project as Advertising lead."}] },
+  ]);
+  const [custom,setCustom] = useState(saved?.custom || []);
+  const allArch = useMemo(()=>[...ARCH,...custom],[custom]);
+  const archById = id => allArch.find(a=>a.id===id) || ARCH[4];
+  useEffect(()=>{ try{ localStorage.setItem(LS_KEY, JSON.stringify({projects,instances,custom})); }catch(e){} },[projects,instances,custom]);
+
+  const [view,setView] = useState("hq");
+  const [openInst,setOpenInst] = useState(null);
+  const [modal,setModal] = useState(null);
+  const [toasts,setToasts] = useState([]);
+  const [ownerName] = useState("");
+
+  const toast = (t,gold)=>{ const id=uid(); setToasts(p=>[...p,{id,t,gold}]); setTimeout(()=>setToasts(p=>p.filter(x=>x.id!==id)),2600); };
+
+  function grantXp(instId, amt){
+    setInstances(prev=>prev.map(i=>{
+      if(i.id!==instId) return i;
+      const before=rankOf(i.xp).title; const xp=i.xp+amt; const after=rankOf(xp).title;
+      if(before!==after) setTimeout(()=>toast(`${i.name} ranked up → ${after}`,true),300);
+      return {...i,xp};
+    }));
+  }
+  function addLog(instId, kind, text){ setInstances(prev=>prev.map(i=>i.id===instId?{...i,log:[...i.log,{date:today(),kind,text}]}:i)); }
+  function deploy(arch, projectId){
+    const ni={ id:uid(), archId:arch.id, projectId, name:arch.name, xp:0, chat:[],
+      log:[{date:today(),kind:"deploy",text:`Deployed as ${arch.role} on ${projects.find(p=>p.id===projectId)?.name}.`}] };
+    setInstances(p=>[...p,ni]); toast(`${arch.name} deployed`); setView(projectId);
+  }
+  function moveInst(instId, projectId){
+    const proj=projects.find(p=>p.id===projectId);
+    setInstances(prev=>prev.map(i=>i.id===instId?{...i,projectId,log:[...i.log,{date:today(),kind:"deploy",text:`Reassigned to ${proj.name} — field experience carried over.`}]}:i));
+    toast("Agent moved — experience kept"); setModal(null); setView(projectId);
+  }
+  function cloneInst(inst, projectId){
+    const arch=archById(inst.archId); const proj=projects.find(p=>p.id===projectId);
+    const ni={ id:uid(), archId:inst.archId, projectId, name:inst.name, xp:0, chat:[],
+      log:[{date:today(),kind:"deploy",text:`Cloned from another ${arch.role} — same degree, fresh experience on ${proj.name}.`}] };
+    setInstances(p=>[...p,ni]); toast(`${inst.name} cloned (independent)`); setModal(null); setView(projectId);
+  }
+  function removeInst(instId){ setInstances(p=>p.filter(i=>i.id!==instId)); setOpenInst(null); toast("Agent removed"); }
+  function renameInst(instId,name){ setInstances(p=>p.map(i=>i.id===instId?{...i,name}:i)); }
+  function hire(candidate){ setCustom(x=>[...x,candidate]); toast(`${candidate.name} hired — now on your roster`); }
+
+  const liveOpen = instances.find(i=>i.id===openInst);
+  const totalXp = instances.reduce((s,i)=>s+i.xp,0);
+  const topRank = instances.length ? rankOf(Math.max(...instances.map(i=>i.xp))).title : "—";
+
+  return (
+    <div className="bureau">
+      <style>{STYLES}</style>
+
+      <header className="topbar">
+        <div className="topbar-in">
+          <div className="mark"><span className="dot"></span>THE BUREAU <small>· your AI workforce</small></div>
+          <div style={{display:"flex",gap:8}}>
+            <button className="iconbtn" onClick={()=>setModal({type:"settings"})} aria-label="Settings">⚙</button>
+            <button className="iconbtn" onClick={()=>setModal({type:"guide"})} aria-label="How it works">?</button>
+            <button className="iconbtn" onClick={()=>setModal({type:"new"})} aria-label="New">＋</button>
+          </div>
+        </div>
+      </header>
+
+      <div className="wrap">
+        <nav className="chips">
+          <button className={"chip hq"+(view==="hq"?" on":"")} onClick={()=>setView("hq")}>
+            <span className="emo">🏛️</span> Roster (HQ) <span className="cnt">{allArch.length}</span>
+          </button>
+          {projects.map(p=>{
+            const n=instances.filter(i=>i.projectId===p.id).length;
+            return (
+              <button key={p.id} className={"chip"+(view===p.id?" on":"")} onClick={()=>setView(p.id)}>
+                <span className="emo">{p.emoji}</span> {p.name}{n>0 && <span className="cnt">{n}</span>}
+              </button>
+            );
+          })}
+          <button className="chip-add" onClick={()=>setModal({type:"newProject"})} aria-label="New project">＋</button>
+        </nav>
+
+        {!localStorage.getItem('bureau_key') && (
+          <div className="brief" style={{marginTop:14,marginBottom:0}}>
+            <div style={{fontSize:24}}>🔑</div>
+            <div style={{flex:1}}><h4>One-time setup</h4><p>Add your Anthropic API key so your agents can think. Stored only on this device.</p></div>
+            <button className="act primary" style={{marginTop:0}} onClick={()=>setModal({type:"settings"})}>Open settings</button>
+          </div>
+        )}
+
+        {view==="hq" && (
+          <div className="stats">
+            <div className="stat"><div className="n">{allArch.length}</div><div className="l">Specialists</div></div>
+            <div className="stat"><div className="n">{instances.length}</div><div className="l">Deployed</div></div>
+            <div className="stat"><div className="n">{totalXp.toLocaleString()}<em>xp</em></div><div className="l">Team experience</div></div>
+            <div className="stat"><div className="n" style={{fontSize:17,paddingTop:3}}>{topRank}</div><div className="l">Highest rank</div></div>
+          </div>
+        )}
+
+        {view==="hq"
+          ? <RosterView allArch={allArch} projects={projects} instances={instances}
+              onDeploy={(arch)=> projects.length===1 ? deploy(arch,projects[0].id) : setModal({type:"deploy",arch}) }
+              onHire={()=>setModal({type:"hire"})} onGuide={()=>setModal({type:"guide"})} />
+          : <ProjectView project={projects.find(p=>p.id===view)} instances={instances.filter(i=>i.projectId===view)}
+              archById={archById} onOpen={(inst)=>setOpenInst(inst.id)}
+              onMove={(inst)=>setModal({type:"move",inst})} onClone={(inst)=>setModal({type:"clone",inst})}
+              goRoster={()=>setView("hq")} onBrief={()=>setModal({type:"standup",projectId:view})} />
+        }
+
+        <p className="help">Agents are powered by Claude — they actually think. A <b>Degree</b> is fixed expertise; <b>Experience</b> grows per project and feeds back into how sharp each agent is here.</p>
+      </div>
+
+      {liveOpen && (
+        <Workspace inst={liveOpen} arch={archById(liveOpen.archId)} project={projects.find(p=>p.id===liveOpen.projectId)}
+          ownerName={ownerName} onClose={()=>setOpenInst(null)}
+          setInstances={setInstances} grantXp={grantXp} addLog={addLog} renameInst={renameInst}
+          onMove={()=>setModal({type:"move",inst:liveOpen})} onClone={()=>setModal({type:"clone",inst:liveOpen})}
+          onRemove={()=>removeInst(liveOpen.id)} toast={toast} />
+      )}
+
+      {modal?.type==="new" && (
+        <Sheet title="Add to the Bureau" onClose={()=>setModal(null)}>
+          <div className="wpane">
+            <button className="prow" style={{width:"100%",marginBottom:10}} onClick={()=>setModal({type:"newProject"})}>
+              <span className="pe">📁</span><div><div className="pn">New project</div><div className="ps">A workspace your agents get deployed into</div></div>
+            </button>
+            <button className="prow" style={{width:"100%"}} onClick={()=>setModal({type:"hire"})}>
+              <span className="pe">🧑‍💼</span><div><div className="pn">Hire a specialist</div><div className="ps">Pick a ready candidate, build custom, or let AI draft one</div></div>
+            </button>
+          </div>
+        </Sheet>
+      )}
+      {modal?.type==="newProject" && (
+        <NewProject onClose={()=>setModal(null)} onCreate={(p)=>{ const np={...p,id:uid()}; setProjects(x=>[...x,np]); setView(np.id); setModal(null); toast("Project created"); }} />
+      )}
+      {modal?.type==="newSpec" && (
+        <NewSpecialist onClose={()=>setModal(null)} onCreate={(a)=>{ const na={...a,id:uid()}; setCustom(x=>[...x,na]); setModal(null); toast(`${a.name} added to roster`); }} />
+      )}
+      {modal?.type==="hire" && (
+        <HiringHall hiredIds={allArch.map(a=>a.id)} onHire={hire}
+          onCustom={()=>setModal({type:"newSpec"})} onClose={()=>setModal(null)} />
+      )}
+      {modal?.type==="guide" && <Guide onClose={()=>setModal(null)} />}
+      {modal?.type==="settings" && <SettingsSheet toast={toast} onClose={()=>setModal(null)} />}
+      {modal?.type==="deploy" && (
+        <PickProject title={`Deploy ${modal.arch.name}`} sub="Choose a project to deploy into" projects={projects}
+          onPick={(pid)=>{deploy(modal.arch,pid); setModal(null);}} onClose={()=>setModal(null)}
+          onNew={()=>setModal({type:"newProject"})} />
+      )}
+      {modal?.type==="move" && (
+        <PickProject title={`Move ${modal.inst.name}`} sub="Same agent — their experience travels with them" projects={projects.filter(p=>p.id!==modal.inst.projectId)}
+          onPick={(pid)=>moveInst(modal.inst.id,pid)} onClose={()=>setModal(null)} onNew={()=>setModal({type:"newProject"})} />
+      )}
+      {modal?.type==="clone" && (
+        <PickProject title={`Clone ${modal.inst.name}`} sub="Same degree — a brand-new independent agent with fresh experience" projects={projects}
+          onPick={(pid)=>cloneInst(modal.inst,pid)} onClose={()=>setModal(null)} onNew={()=>setModal({type:"newProject"})} />
+      )}
+      {modal?.type==="standup" && (
+        <Standup project={projects.find(p=>p.id===modal.projectId)} instances={instances.filter(i=>i.projectId===modal.projectId)}
+          archById={archById} ownerName={ownerName} onClose={()=>setModal(null)} addLog={addLog} grantXp={grantXp} toast={toast} />
+      )}
+
+      <div className="toasts">{toasts.map(t=>(<div key={t.id} className={"toast"+(t.gold?" gold":"")}>{t.gold?"⭐":"✓"} {t.t}</div>))}</div>
+    </div>
+  );
+}
+
+// ---- Roster (HQ) ----
+function RosterView({allArch,projects,instances,onDeploy,onHire,onGuide}){
+  const countFor = id => instances.filter(i=>i.archId===id).length;
+  return (
+    <>
+      <div className="shead">
+        <div>
+          <div className="eyebrow">Headquarters</div>
+          <h2>Your roster of specialists</h2>
+          <p>Each has a fixed degree. Deploy one into a project to put them to work — they build their own experience there. <button className="linkish" onClick={onGuide}>New here? How it works →</button></p>
+        </div>
+        <button className="act sm" style={{flex:"0 0 auto"}} onClick={onHire}>＋ Hire</button>
+      </div>
+      <div className="grid">
+        {allArch.map((a,idx)=>(
+          <div className="card" key={a.id} style={{"--cardc":a.color,"--avbg":a.color+"22",animationDelay:(idx*40)+"ms"}}>
+            <span className="glow"></span>
+            <div className="card-top">
+              <div className="av" style={{"--cardc":a.color}}>{a.emoji}</div>
+              <div style={{minWidth:0}}>
+                <h3>{a.name}</h3>
+                <div className="role">{a.role}</div>
+                <div className="degree-badge">🎓 {a.role} degree</div>
+              </div>
+            </div>
+            <div className="tag">{a.tag}</div>
+            <div style={{fontSize:11,color:"var(--mut2)",marginTop:11,fontFamily:"'JetBrains Mono'"}}>
+              {countFor(a.id)>0?`Deployed in ${countFor(a.id)} place${countFor(a.id)>1?"s":""}`:"On the bench"}
+            </div>
+            <div className="acts">
+              <button className="act primary" onClick={()=>onDeploy(a)}>Deploy →</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// ---- Project view ----
+function ProjectView({project,instances,archById,onOpen,onMove,onClone,goRoster,onBrief}){
+  if(!project) return null;
+  return (
+    <>
+      <div className="shead">
+        <div>
+          <div className="eyebrow">{project.emoji} Project</div>
+          <h2>{project.name}</h2>
+          <p>{project.desc}</p>
+        </div>
+        {instances.length>0 && <button className="act sm" style={{flex:"0 0 auto"}} onClick={onBrief}>☀️ Daily standup</button>}
+      </div>
+      {instances.length===0
+        ? <div className="empty">
+            <div className="big">🏛️</div>
+            <h3>No agents deployed here yet</h3>
+            <div>Head to the Roster and deploy the specialists this project needs.</div>
+            <button className="act primary" onClick={goRoster}>Open Roster</button>
+          </div>
+        : <div className="grid">
+            {instances.map((inst,idx)=>{ const a=archById(inst.archId); const r=rankOf(inst.xp);
+              return (
+                <div className="card" key={inst.id} style={{"--cardc":a.color,"--avbg":a.color+"22",animationDelay:(idx*40)+"ms"}}>
+                  <span className="glow"></span>
+                  <div className="card-top">
+                    <div className="av" style={{"--cardc":a.color}}>{a.emoji}<span className="on"></span></div>
+                    <div style={{minWidth:0}}>
+                      <h3>{inst.name}</h3>
+                      <div className="role">{a.role}</div>
+                      <div className="degree-badge">🎓 {a.role} degree</div>
+                    </div>
+                  </div>
+                  <div className="xpwrap">
+                    <div className="xprow"><span className="rank">{r.title} · Lv {r.level}</span><span>{r.next?`${r.toNext} xp → ${r.next}`:"max"}</span></div>
+                    <div className="bar"><i style={{width:r.pct+"%"}}></i></div>
+                  </div>
+                  <div className="acts">
+                    <button className="act primary" onClick={()=>onOpen(inst)}>Open ↗</button>
+                    <button className="act sm" title="Move to another project" onClick={()=>onMove(inst)}>⇄</button>
+                    <button className="act sm" title="Clone as independent copy" onClick={()=>onClone(inst)}>⧉</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+      }
+    </>
+  );
+}
+
+// ---- Workspace ----
+function Workspace({inst,arch,project,ownerName,onClose,setInstances,grantXp,addLog,renameInst,onMove,onClone,onRemove,toast}){
+  const [tab,setTab] = useState("chat");
+  const [draft,setDraft] = useState("");
+  const [busy,setBusy] = useState(false);
+  const [briefing,setBriefing] = useState(false);
+  const [editName,setEditName] = useState(false);
+  const [nameVal,setNameVal] = useState(inst.name);
+  const scrollRef = useRef(null);
+  const r = rankOf(inst.xp);
+  const prompts = QUICK_PROMPTS[inst.archId] || QUICK_FALLBACK;
+
+  useEffect(()=>{ if(scrollRef.current) scrollRef.current.scrollTop=scrollRef.current.scrollHeight; },[inst.chat,busy,tab]);
+
+  async function send(textOverride){
+    const text=(textOverride||draft).trim(); if(!text||busy) return;
+    setDraft(""); setBusy(true);
+    const newChat=[...inst.chat,{role:"user",content:text}];
+    setInstances(prev=>prev.map(i=>i.id===inst.id?{...i,chat:newChat}:i));
+    const system=buildSystem(arch,{...inst,chat:newChat},project,ownerName);
+    const reply=await callAgent(system,newChat);
+    setInstances(prev=>prev.map(i=>i.id===inst.id?{...i,chat:[...newChat,{role:"assistant",content:reply}]}:i));
+    grantXp(inst.id,12); setBusy(false);
+  }
+  async function runBriefing(){
+    if(briefing) return; setBriefing(true);
+    const system=buildSystem(arch,inst,project,ownerName);
+    const prompt=`It's ${today()}. Give a sharp DAILY BRIEFING for "${project.name}" in your role as ${arch.role}. Format: 3–5 specific priorities for today, one risk to watch, one quick win. Make it specific to this project, not generic.`;
+    const reply=await callAgent(system,[{role:"user",content:prompt}]);
+    addLog(inst.id,"briefing",reply); grantXp(inst.id,45); setBriefing(false); setTab("log");
+    toast(`${inst.name} updated today's plan (+45 xp)`);
+  }
+  function saveName(){ const v=nameVal.trim()||inst.name; renameInst(inst.id,v); setEditName(false); }
+
+  return (
+    <div className="scrim" onClick={(e)=>{ if(e.target===e.currentTarget) onClose(); }}>
+      <div className="sheet" style={{"--cardc":arch.color}}>
+        <div className="sheet-grip"></div>
+        <div className="sheet-h">
+          <div className="av" style={{"--cardc":arch.color,"--avbg":arch.color+"22",width:42,height:42,fontSize:21}}>{arch.emoji}<span className="on"></span></div>
+          <div style={{minWidth:0,flex:1}}>
+            {editName
+              ? <input autoFocus value={nameVal} onChange={e=>setNameVal(e.target.value)} onBlur={saveName}
+                  onKeyDown={e=>e.key==="Enter"&&saveName()} style={{background:"var(--panel2)",border:"1px solid var(--violet)",borderRadius:8,color:"var(--txt)",font:"inherit",fontSize:16,padding:"3px 8px",width:"100%"}} />
+              : <div onClick={()=>{setNameVal(inst.name);setEditName(true);}} style={{cursor:"text"}}>
+                  <div className="disp" style={{fontSize:17,fontWeight:600,lineHeight:1.1}}>{inst.name} <span style={{color:"var(--mut2)",fontSize:12}}>✎</span></div>
+                </div>}
+            <div style={{fontSize:12,color:arch.color,fontWeight:600}}>{arch.role} · <span style={{color:"var(--mut)"}}>{r.title} in {project.emoji} {project.name}</span></div>
+          </div>
+          <button className="x" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="wtabs">
+          {[["chat","Chat"],["log","Experience"],["about","Profile"]].map(([k,l])=>(
+            <button key={k} className={"wtab"+(tab===k?" on":"")} onClick={()=>setTab(k)}>{l}{k==="log"?` (${inst.log.length})`:""}</button>
+          ))}
+        </div>
+
+        {tab==="chat" && (
+          <>
+            <div className="chatscroll sheet-body" ref={scrollRef} style={{flex:1}}>
+              {inst.chat.length===0 && (
+                <div style={{textAlign:"center",color:"var(--mut)",padding:"26px 16px 8px",fontSize:13.5,lineHeight:1.6}}>
+                  👋 I'm {inst.name}, your {arch.role.toLowerCase()} on {project.name}.<br/>Hand me a task and I'll get to work.
+                  <div className="qp" style={{"--cardc":arch.color}}>
+                    {prompts.map(p=>(<button key={p} onClick={()=>send(p)}>{p}</button>))}
+                  </div>
+                </div>
+              )}
+              {inst.chat.map((m,i)=>(
+                <div key={i} className={"msg "+(m.role==="user"?"me":"ai")} style={m.role!=="user"?{"--cardc":arch.color}:{}}>
+                  {m.role!=="user" && <div className="who">{inst.name} · {arch.role}</div>}
+                  {m.role==="user" ? m.content : <Markdown text={m.content} />}
+                </div>
+              ))}
+              {busy && <div className="msg ai" style={{"--cardc":arch.color}}><div className="who">{inst.name}</div><span className="typing"><i></i><i></i><i></i></span></div>}
+            </div>
+            <div className="composer">
+              <textarea rows={1} placeholder={`Message ${inst.name}…`} value={draft}
+                onChange={e=>{setDraft(e.target.value); e.target.style.height="auto"; e.target.style.height=Math.min(120,e.target.scrollHeight)+"px";}}
+                onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();} }} />
+              <button className="send" disabled={busy||!draft.trim()} onClick={()=>send()}>↑</button>
+            </div>
+          </>
+        )}
+
+        {tab==="log" && (
+          <div className="wpane sheet-body">
+            <div className="brief">
+              <div style={{fontSize:26}}>☀️</div>
+              <div style={{flex:1}}>
+                <h4>Daily briefing</h4>
+                <p>Have {inst.name} review the project and update today's game plan. Builds experience.</p>
+              </div>
+              <button className="act primary" disabled={briefing} onClick={runBriefing}>{briefing?"Thinking…":"Run"}</button>
+            </div>
+            <div className="xpwrap" style={{marginBottom:18}}>
+              <div className="xprow"><span className="rank">🎓 {arch.role} degree · {r.title} · Lv {r.level}</span><span>{r.next?`${r.toNext} xp → ${r.next}`:"maxed"}</span></div>
+              <div className="bar"><i style={{width:r.pct+"%"}}></i></div>
+            </div>
+            {inst.log.slice().reverse().map((l,i)=>(
+              <div className="logitem" key={i} style={{"--cardc":arch.color,animationDelay:(i*30)+"ms"}}>
+                <span className="d">{l.date}</span>
+                <span className="k" style={{background:(KIND_COLOR[l.kind]||"#7C5CFF")+"22",color:KIND_COLOR[l.kind]||"#7C5CFF"}}>{l.kind}</span>
+                <div className="t"><Markdown text={l.text} /></div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab==="about" && (
+          <div className="wpane sheet-body">
+            <div className="field"><label>Degree (fixed — travels everywhere)</label>
+              <div style={{background:"var(--panel2)",border:"1px solid rgba(245,181,68,.25)",borderRadius:12,padding:13,fontSize:13,lineHeight:1.6}}>🎓 {arch.degree}</div></div>
+            <div className="field"><label>On this project</label>
+              <div style={{fontSize:13,color:"var(--mut)",lineHeight:1.5}}>{r.title} (Lv {r.level}) · {inst.xp} xp · {inst.log.length} log entries · {inst.chat.filter(m=>m.role==="user").length} tasks handled</div></div>
+            <div className="acts" style={{marginTop:4}}>
+              <button className="act" onClick={onMove}>⇄ Move to project</button>
+              <button className="act" onClick={onClone}>⧉ Clone (independent)</button>
+            </div>
+            <button className="act" style={{marginTop:10,width:"100%",borderColor:"rgba(255,107,107,.4)",color:"var(--red)"}} onClick={onRemove}>Remove from project</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---- Standup ----
+function Standup({project,instances,archById,ownerName,onClose,addLog,grantXp,toast}){
+  const [running,setRunning]=useState(false);
+  const [done,setDone]=useState(false);
+  const [out,setOut]=useState([]);
+  async function run(){
+    setRunning(true); const results=[];
+    for(const inst of instances){
+      const arch=archById(inst.archId);
+      const system=buildSystem(arch,inst,project,ownerName);
+      const prompt=`It's ${today()}. One-line + 3 bullet daily standup for "${project.name}" from your seat as ${arch.role}: today's top priorities and one risk. Be specific.`;
+      const reply=await callAgent(system,[{role:"user",content:prompt}]);
+      addLog(inst.id,"briefing",reply); grantXp(inst.id,40);
+      results.push({inst,arch,reply}); setOut([...results]);
+    }
+    setRunning(false); setDone(true); toast("Standup complete — all agents updated");
+  }
+  return (
+    <Sheet title={`☀️ Daily standup · ${project.name}`} onClose={onClose}>
+      <div className="wpane sheet-body">
+        {!done && !running && (
+          <>
+            <p style={{color:"var(--mut)",fontSize:13.5,lineHeight:1.6,marginBottom:16}}>
+              Each of your {instances.length} deployed agents will review {project.name} and report today's priorities — updating their experience as they go.
+            </p>
+            <button className="act primary" style={{width:"100%"}} onClick={run}>Run standup for {instances.length} agents</button>
+          </>
+        )}
+        {(running||done) && (
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {out.map(({inst,arch,reply},i)=>(
+              <div key={i} style={{border:"1px solid var(--line)",borderRadius:14,padding:13,background:"var(--panel2)",animation:"rise .35s both"}}>
+                <div style={{display:"flex",gap:9,alignItems:"center",marginBottom:8}}>
+                  <span style={{fontSize:18}}>{arch.emoji}</span>
+                  <b style={{fontFamily:"'Space Grotesk'"}}>{inst.name}</b>
+                  <span style={{color:arch.color,fontSize:12,fontWeight:600}}>{arch.role}</span>
+                </div>
+                <div style={{fontSize:13.5,lineHeight:1.55}}><Markdown text={reply} /></div>
+              </div>
+            ))}
+            {running && <div style={{textAlign:"center",color:"var(--mut)",padding:14}}><span className="typing"><i></i><i></i><i></i></span><div style={{fontSize:12,marginTop:6}}>Next agent reporting…</div></div>}
+            {done && <button className="act primary" style={{width:"100%"}} onClick={onClose}>Done</button>}
+          </div>
+        )}
+      </div>
+    </Sheet>
+  );
+}
+
+// ---- generic Sheet ----
+function Sheet({title,onClose,children}){
+  return (
+    <div className="scrim" onClick={(e)=>{ if(e.target===e.currentTarget) onClose(); }}>
+      <div className="sheet">
+        <div className="sheet-grip"></div>
+        <div className="sheet-h"><div className="disp" style={{fontSize:16,fontWeight:600}}>{title}</div><button className="x" onClick={onClose}>✕</button></div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ---- New project ----
+function NewProject({onClose,onCreate}){
+  const [name,setName]=useState(""); const [desc,setDesc]=useState(""); const [emoji,setEmoji]=useState("🚀");
+  const emojis=["🚀","🛍️","🏗️","🎯","🎨","📱","💡","🍼","🎮","🏷️","🧱","✨"];
+  return (
+    <Sheet title="New project" onClose={onClose}>
+      <div className="wpane sheet-body">
+        <div className="field"><label>Icon</label><div className="emojirow">{emojis.map(e=>(<button key={e} className={emoji===e?"on":""} onClick={()=>setEmoji(e)}>{e}</button>))}</div></div>
+        <div className="field"><label>Project name</label><input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Shia Baby Launch" /></div>
+        <div className="field"><label>What is it? (your agents read this)</label><textarea rows={3} value={desc} onChange={e=>setDesc(e.target.value)} placeholder="A few lines of context — what you're building, who it's for, where it's at." /></div>
+        <button className="act primary" style={{width:"100%"}} disabled={!name.trim()} onClick={()=>onCreate({name:name.trim(),desc:desc.trim(),emoji})}>Create project</button>
+      </div>
+    </Sheet>
+  );
+}
+
+// ---- New specialist (custom / AI draft) ----
+function NewSpecialist({onClose,onCreate}){
+  const [name,setName]=useState(""); const [role,setRole]=useState(""); const [degree,setDegree]=useState(""); const [emoji,setEmoji]=useState("🧩");
+  const [color,setColor]=useState("#7C5CFF");
+  const [need,setNeed]=useState(""); const [drafting,setDrafting]=useState(false);
+  const emojis=["🧩","⚖️","📊","🌐","🔧","🩺","🎬","🛡️","📷","🧬"];
+  const colors=["#7C5CFF","#FF7A59","#3DDC97","#F5B544","#56CCF2","#FF5CA8","#4FD1C5","#FF8FA3"];
+  async function draft(){
+    if(!need.trim()||drafting) return; setDrafting(true);
+    const sys="You design business specialists for an entrepreneur's AI team. Given a need, reply with ONLY a JSON object (no markdown, no prose) with keys: name (a short human first name), role (2–4 words), degree (one sentence starting with 'a ...' describing their expertise and how they think), emoji (one emoji).";
+    const reply=await callAgent(sys,[{role:"user",content:"Need: "+need.trim()}]);
+    try{ const j=JSON.parse(reply.replace(/```json|```/g,"").trim());
+      if(j.name)setName(j.name); if(j.role)setRole(j.role); if(j.degree)setDegree(j.degree); if(j.emoji)setEmoji(j.emoji);
+    }catch(e){}
+    setDrafting(false);
+  }
+  return (
+    <Sheet title="Hire a custom specialist" onClose={onClose}>
+      <div className="wpane sheet-body">
+        <div className="field" style={{background:"rgba(124,92,255,.08)",border:"1px solid var(--line2)",borderRadius:14,padding:13,marginBottom:16}}>
+          <label>✨ Let AI draft this hire</label>
+          <div style={{display:"flex",gap:8}}>
+            <input value={need} onChange={e=>setNeed(e.target.value)} placeholder="What do you need? e.g. someone to run my TikTok ads"
+              onKeyDown={e=>e.key==="Enter"&&draft()} style={{flex:1}} />
+            <button className="act primary sm" style={{flex:"0 0 auto"}} disabled={drafting||!need.trim()} onClick={draft}>{drafting?"…":"Draft"}</button>
+          </div>
+        </div>
+        <p style={{color:"var(--mut)",fontSize:12.5,lineHeight:1.5,marginBottom:14}}>Or fill it in yourself. The degree becomes their fixed expertise wherever they're deployed.</p>
+        <div className="field"><label>Name</label><input value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Dot" /></div>
+        <div className="field"><label>Role / title</label><input value={role} onChange={e=>setRole(e.target.value)} placeholder="e.g. Data & Analytics" /></div>
+        <div className="field"><label>Degree — their expertise & how they think</label><textarea rows={3} value={degree} onChange={e=>setDegree(e.target.value)} placeholder="e.g. a data analyst: metrics, KPIs, dashboards, A/B tests, and turning numbers into decisions." /></div>
+        <div className="field"><label>Icon</label><div className="emojirow">{emojis.map(e=>(<button key={e} className={emoji===e?"on":""} onClick={()=>setEmoji(e)}>{e}</button>))}</div></div>
+        <div className="field"><label>Accent</label><div className="emojirow">{colors.map(c=>(<button key={c} className={color===c?"on":""} style={{background:c+"33",borderColor:color===c?c:"var(--line)"}} onClick={()=>setColor(c)}></button>))}</div></div>
+        <button className="act primary" style={{width:"100%"}} disabled={!name.trim()||!role.trim()||!degree.trim()}
+          onClick={()=>onCreate({name:name.trim(),role:role.trim(),degree:degree.trim(),emoji,color,tag:role.trim()+" specialist."})}>Add to roster</button>
+      </div>
+    </Sheet>
+  );
+}
+
+// ---- Hiring Hall ----
+function HiringHall({hiredIds,onHire,onCustom,onClose}){
+  const open = CANDIDATES.filter(c=>!hiredIds.includes(c.id));
+  return (
+    <Sheet title="🧑‍💼 Hiring Hall" onClose={onClose}>
+      <div className="wpane sheet-body">
+        <button className="prow" onClick={onCustom} style={{width:"100%",borderStyle:"dashed",marginBottom:14,background:"rgba(124,92,255,.08)"}}>
+          <span className="pe">✨</span><div><div className="pn">Build custom / use AI</div><div className="ps">Design any specialist, or describe a need and let AI draft it</div></div>
+        </button>
+        <div className="eyebrow" style={{marginBottom:10}}>Ready to hire</div>
+        {open.length===0 && <div style={{color:"var(--mut)",fontSize:13,padding:"6px 0 4px"}}>You've hired every ready candidate. Build a custom one above.</div>}
+        <div className="plist">
+          {open.map((c,idx)=>(
+            <div key={c.id} className="prow" style={{cursor:"default","--cardc":c.color,animationDelay:(idx*35)+"ms"}}>
+              <span className="av" style={{"--cardc":c.color,"--avbg":c.color+"22",width:40,height:40,fontSize:19,flex:"0 0 auto"}}>{c.emoji}</span>
+              <div style={{minWidth:0,flex:1}}>
+                <div className="pn">{c.name} <span style={{color:c.color,fontWeight:600,fontSize:12}}>· {c.role}</span></div>
+                <div className="ps">{c.tag}</div>
+              </div>
+              <button className="act primary sm" style={{flex:"0 0 auto"}} onClick={()=>onHire(c)}>Hire</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Sheet>
+  );
+}
+
+// ---- Guide ----
+function Guide({onClose}){
+  const Step = ({n,t,children}) => (
+    <div style={{display:"flex",gap:13,marginBottom:16}}>
+      <div className="mono" style={{flex:"0 0 auto",width:30,height:30,borderRadius:9,background:"rgba(124,92,255,.15)",border:"1px solid var(--line2)",color:"var(--violet2)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13}}>{n}</div>
+      <div><div className="disp" style={{fontWeight:600,fontSize:14.5,marginBottom:4}}>{t}</div><div style={{color:"var(--mut)",fontSize:13,lineHeight:1.55}}>{children}</div></div>
+    </div>
+  );
+  return (
+    <Sheet title="How the Bureau works" onClose={onClose}>
+      <div className="wpane sheet-body">
+        <p style={{fontSize:13.5,lineHeight:1.6,marginBottom:18}}>
+          Think of it like running a company of AI experts. You hire specialists, deploy them onto projects, and put them to work. Each one is powered by Claude, so they actually think.
+        </p>
+        <Step n="1" t="Hire your specialists">Tap <b>＋ Hire</b> (top of the Roster). Pick a ready candidate, or describe a need and let AI draft a custom one. Hired specialists wait on your <b>Roster (HQ)</b>.</Step>
+        <Step n="2" t="Make a project">Use the <b>＋</b> in the header → <b>New project</b>. Give it a name and a few lines of context — your agents read that to understand what they're working on.</Step>
+        <Step n="3" t="Deploy agents into it">From the Roster, tap <b>Deploy</b> on any specialist and choose the project. They show up on the project's team, ready to work.</Step>
+        <Step n="4" t="Put them to work">Open an agent and <b>chat</b> — ask questions or hand them a task and they'll do it. Every exchange earns them experience on that project.</Step>
+        <Step n="5" t="Update them daily">In an agent's <b>Experience</b> tab tap <b>Daily briefing</b>, or run a project's <b>Daily standup</b> to brief the whole team at once. They review the project, write today's plan, and rank up.</Step>
+        <div style={{height:1,background:"var(--line)",margin:"4px 0 18px"}}></div>
+        <div className="disp" style={{fontWeight:600,fontSize:14.5,marginBottom:10}}>Two things to know</div>
+        <div style={{display:"flex",gap:11,marginBottom:13}}>
+          <span style={{fontSize:18}}>🎓</span>
+          <div style={{fontSize:13,lineHeight:1.55,color:"var(--mut)"}}><b style={{color:"var(--txt)"}}>Degree vs. Experience.</b> A <span style={{color:"var(--gold)"}}>degree</span> is fixed expertise — it's the same everywhere. <span style={{color:"var(--gold)"}}>Experience</span> grows per project and makes that agent sharper there, because their notes feed back into how they answer.</div>
+        </div>
+        <div style={{display:"flex",gap:11}}>
+          <span style={{fontSize:18}}>⇄</span>
+          <div style={{fontSize:13,lineHeight:1.55,color:"var(--mut)"}}><b style={{color:"var(--txt)"}}>Move vs. Clone.</b> <b>Move</b> (⇄) sends the same agent to another project and their experience travels with them. <b>Clone</b> (⧉) makes a brand-new independent copy — same degree, fresh experience. So Lucas on Project A and a cloned Lucas on Project B are two different agents.</div>
+        </div>
+        <button className="act primary" style={{width:"100%",marginTop:20}} onClick={onClose}>Got it</button>
+      </div>
+    </Sheet>
+  );
+}
+
+// ---- Pick a project ----
+function PickProject({title,sub,projects,onPick,onClose,onNew}){
+  return (
+    <Sheet title={title} onClose={onClose}>
+      <div className="wpane sheet-body">
+        <p style={{color:"var(--mut)",fontSize:13,lineHeight:1.5,marginBottom:14}}>{sub}</p>
+        <div className="plist">
+          {projects.map(p=>(
+            <button key={p.id} className="prow" onClick={()=>onPick(p.id)}>
+              <span className="pe">{p.emoji}</span>
+              <div style={{minWidth:0}}><div className="pn">{p.name}</div><div className="ps">{p.desc?.slice(0,60)||"No description"}</div></div>
+            </button>
+          ))}
+          {projects.length===0 && <div style={{color:"var(--mut)",fontSize:13,padding:"8px 0"}}>No other projects yet.</div>}
+          <button className="prow" onClick={onNew} style={{borderStyle:"dashed"}}>
+            <span className="pe">＋</span><div><div className="pn">New project</div><div className="ps">Create one to deploy into</div></div>
+          </button>
+        </div>
+      </div>
+    </Sheet>
+  );
+}
+
+
+// ---- Settings (API key + model) ----
+function SettingsSheet({onClose,toast}){
+  const [key,setKey]=useState(localStorage.getItem('bureau_key')||"");
+  const [model,setModel]=useState(localStorage.getItem('bureau_model')||"claude-sonnet-4-6");
+  function save(){
+    localStorage.setItem('bureau_key',key.trim());
+    localStorage.setItem('bureau_model',(model.trim()||"claude-sonnet-4-6"));
+    toast("Settings saved"); onClose();
+  }
+  return (
+    <Sheet title="⚙️ Settings" onClose={onClose}>
+      <div className="wpane sheet-body">
+        <p style={{color:"var(--mut)",fontSize:13,lineHeight:1.6,marginBottom:16}}>
+          Your agents think using the Anthropic API. Get a key at <b>console.anthropic.com</b> → API Keys, paste it here. It's saved only in this browser on this device — it never leaves your phone except to talk to Anthropic.
+        </p>
+        <div className="field"><label>Anthropic API key</label>
+          <input type="password" value={key} onChange={e=>setKey(e.target.value)} placeholder="sk-ant-..." autoComplete="off" /></div>
+        <div className="field"><label>Model</label>
+          <input value={model} onChange={e=>setModel(e.target.value)} placeholder="claude-sonnet-4-6" />
+          <div style={{fontSize:11.5,color:"var(--mut2)",marginTop:6,lineHeight:1.5}}>claude-sonnet-4-6 is the smart default. claude-haiku-4-5 is cheaper and faster; claude-opus-4-8 is the heavyweight.</div></div>
+        <button className="act primary" style={{width:"100%"}} disabled={!key.trim()} onClick={save}>Save</button>
+      </div>
+    </Sheet>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+</script>
+</body>
+</html>
