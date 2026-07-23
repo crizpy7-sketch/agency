@@ -205,9 +205,107 @@ const STYLES = `
 .toast.gold{border-color:var(--gold);color:var(--gold);box-shadow:0 12px 34px rgba(245,181,68,.18)}
 @keyframes pop{from{transform:translateY(16px) scale(.96);opacity:0}}
 
+/* engineering graph */
+.graphbox{margin-top:16px;background:linear-gradient(180deg,var(--panel2),var(--panel) 75%);border:1px solid var(--line);border-radius:17px;padding:8px 4px;overflow:hidden;animation:rise .45s both}
+.graph-svg{width:100%;max-width:620px;display:block;margin:0 auto}
+.gspoke{stroke:var(--line2);stroke-width:1.5;opacity:.55;stroke-dasharray:2 7}
+.gedge{stroke:var(--violet);stroke-width:2;fill:none;opacity:.6;stroke-dasharray:7 9;animation:gflow 1.5s linear infinite}
+@keyframes gflow{to{stroke-dashoffset:-16}}
+.ghub{cursor:pointer}
+.ghub .hubbody{fill:var(--panel3);stroke:var(--line2);stroke-width:1.5}
+.ghub-emo{font-size:26px}
+.ghub-t{fill:var(--txt);font-family:'Space Grotesk';font-size:13px;font-weight:700;letter-spacing:.14em}
+.ghub-s{fill:var(--mut);font-family:'JetBrains Mono',monospace;font-size:10px}
+.gnode{cursor:pointer}
+.gnode .body{fill:var(--panel);stroke-width:2;transition:fill .15s}
+.gnode:hover .body{fill:var(--panel2)}
+.gnode.on .body{fill:var(--panel3);stroke-width:3}
+.gnode:focus-visible{outline:2px solid var(--violet2);outline-offset:2px}
+.gnode-emo{font-size:25px}
+.gnode-n{fill:var(--txt);font-family:'Space Grotesk';font-size:14px;font-weight:600}
+.gnode-r{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.03em}
+.gbadge{fill:var(--violet);stroke:var(--ink);stroke-width:2}
+.gbadge-t{fill:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700}
+.gdetail{margin-top:12px;background:linear-gradient(180deg,var(--panel2),var(--panel) 70%);border:1px solid var(--cardc,var(--line));border-radius:17px;padding:16px;animation:rise .3s both}
+.gdetail h3{font-family:'Space Grotesk';font-size:16.5px;font-weight:600;line-height:1.15}
+.gflow-note{margin-top:11px;padding:8px 11px;border-radius:10px;background:rgba(124,92,255,.08);border:1px solid rgba(124,92,255,.25);color:var(--violet2);font-size:11px}
+.gdeps{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.gdep{padding:6px 11px;border-radius:9px;border:1px solid var(--line2);background:var(--panel3);color:var(--txt);font-size:11.5px;font-family:'JetBrains Mono',monospace;transition:.15s}
+.gdep:hover{border-color:var(--violet);color:var(--violet2)}
+
+/* teams: tabs, pipeline edges, relay run */
+.gtabs{display:flex;gap:8px;overflow-x:auto;margin-top:14px;scrollbar-width:none}
+.gtabs::-webkit-scrollbar{display:none}
+.gflow{stroke:var(--violet);stroke-width:2;fill:none;opacity:.5}
+.gback{stroke:var(--gold);stroke-width:1.8;fill:none;opacity:.75;stroke-dasharray:6 7;animation:gflow 1.5s linear infinite}
+.gbypass{stroke:var(--violet2);stroke-width:1.6;fill:none;opacity:.45;stroke-dasharray:3 7}
+.gelabel{fill:var(--mut);font-family:'JetBrains Mono',monospace;font-size:10px;paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
+.gelabel.gold{fill:var(--gold)}
+.gstep{fill:var(--mut2);font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
+.stage{border:1px solid var(--line);border-radius:14px;padding:12px 13px;background:var(--panel2);animation:rise .35s both}
+.stage-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stagedot{width:9px;height:9px;border-radius:50%;background:var(--mut2);flex:0 0 auto}
+.stagedot.thinking{background:var(--gold);animation:dotpulse 1.1s ease-in-out infinite}
+.stagedot.done{background:var(--green)}
+@keyframes dotpulse{50%{opacity:.3}}
+.stage-note{margin-top:7px;font-size:11.5px;color:var(--gold);font-family:'JetBrains Mono',monospace}
+.stage-out{margin-top:8px}
+.stage-out summary{cursor:pointer;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+
 .help{font-size:12px;color:var(--mut2);text-align:center;padding:22px 12px 4px;line-height:1.55}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 `;
+
+// ---- engineering wing (websites · apps · software · games) ----
+// Four builders who share one mission: ship the product. They form the
+// default "Engineering Loop" group in the Teams view.
+const ENGINEERING = [
+  { id:"weston", name:"Weston", role:"Website Engineering", emoji:"🌐", color:"#56CCF2", team:"engineering",
+    tag:"Fast, responsive sites that convert.",
+    degree:"a website engineer: semantic HTML, modern CSS, responsive & accessible layouts, Core Web Vitals and performance, SEO-ready markup, analytics, and shipping polished marketing sites and landing pages that load fast and turn visitors into customers." },
+  { id:"aria", name:"Aria", role:"App Engineering", emoji:"📲", color:"#7C5CFF", team:"engineering",
+    tag:"Mobile & web apps people keep open.",
+    degree:"an application engineer: cross-platform mobile and web apps (React Native, Flutter, PWAs), state management, offline sync, auth, push notifications, app-store deployment, and smooth, native-feeling UX that keeps users coming back." },
+  { id:"sol", name:"Sol", role:"Software Engineering", emoji:"🛠️", color:"#3DDC97", team:"engineering",
+    tag:"Robust backends, APIs & architecture.",
+    degree:"a software engineer: backend services, clean APIs, data modeling, databases, system architecture, testing, CI/CD, security, scalability and reliability. You turn fuzzy requirements into maintainable, well-structured software." },
+  { id:"pixel", name:"Pixel", role:"Game Engineering", emoji:"🎮", color:"#F5B544", team:"engineering",
+    tag:"Gameplay loops, physics & polish.",
+    degree:"a game engineer: core gameplay loops, engines (Unity, Unreal, Godot), physics, input, real-time rendering, performance budgets, and juicy, satisfying game feel from first prototype to shipped build." },
+];
+
+// ---- delivery pipeline crew ----
+// A client request flows: intake → requirements → scope & pricing →
+// reusable app foundation (or a fresh spec) → build ⇄ review → merge.
+const PIPELINE = [
+  { id:"nova", name:"Nova", role:"Intake", emoji:"📥", color:"#4FD1C5", team:"pipeline",
+    tag:"First contact — turns a raw ask into a clean brief.",
+    degree:"a client-intake specialist: you receive raw requests, extract the real goal, users, constraints, budget signals and unknowns, ask only the questions that matter, and hand a clean intake packet to requirements. Nothing gets lost at your desk." },
+  { id:"rhea", name:"Rhea", role:"Requirements", emoji:"📋", color:"#7C8CFF", team:"pipeline",
+    tag:"User stories, acceptance criteria & edge cases.",
+    degree:"a requirements analyst: user stories, acceptance criteria, functional and non-functional requirements, edge cases, and explicit out-of-scope lists. You turn an intake brief into a spec a builder can implement and a reviewer can test against." },
+  { id:"sage", name:"Sage", role:"Scope & Pricing", emoji:"💵", color:"#3DDC97", team:"pipeline",
+    tag:"Work breakdown, timeline & price options.",
+    degree:"a scoping and pricing expert: work-breakdown structures, effort estimates, timelines, tiered price options, assumptions and risk buffers. You make sure the job is sized honestly before anyone builds anything." },
+  { id:"fen", name:"Fen", role:"Foundation", emoji:"🏗️", color:"#F5B544", team:"pipeline",
+    tag:"Reusable app foundation — reuse it or spec fresh.",
+    degree:"a platform engineer who owns the reusable app foundation: auth, payments, CRUD, dashboards, deployment and shared components ready to go. For each job you decide — start from the foundation and list only the deltas, or call for a fresh spec when reuse doesn't fit." },
+  { id:"bolt", name:"Bolt", role:"Build", emoji:"🔨", color:"#FF7A59", team:"pipeline",
+    tag:"Turns the spec into concrete, working output.",
+    degree:"a build agent: you implement the spec — architecture, components, schemas, code sketches and copy — as concrete output, not plans about plans. You take review feedback on the chin and ship revisions fast." },
+  { id:"juno", name:"Juno", role:"Review", emoji:"🧐", color:"#FF5CA8", team:"pipeline",
+    tag:"Quality gate — approves or sends it back.",
+    degree:"a reviewer: you check build output against the requirements line by line — defects, gaps, edge cases and risks, each with a severity. You end every review with a clear verdict: approved, or changes requested with exactly what to fix." },
+  { id:"mercer", name:"Mercer", role:"Merge & Release", emoji:"🔀", color:"#9D85FF", team:"pipeline",
+    tag:"Merges approved work & ships it.",
+    degree:"a merge-and-release manager: you consolidate approved work into a final deliverable, write the changelog, run the ship checklist, and make sure what was promised in requirements is what actually went out the door." },
+];
+
+// ---- default groups (Teams view) — fully regroupable by the user ----
+const DEFAULT_GROUPS = [
+  { id:"g_eng",  name:"Engineering Loop",  emoji:"🕸️", kind:"loop",     members:ENGINEERING.map(a=>a.id) },
+  { id:"g_pipe", name:"Delivery Pipeline", emoji:"🚚", kind:"pipeline", members:PIPELINE.map(a=>a.id) },
+];
 
 // ---- roster (starting hires) ----
 const ARCH = [
@@ -241,6 +339,8 @@ const ARCH = [
   { id:"cole", name:"Cole", role:"Customer Experience", emoji:"💬", color:"#7C8CFF",
     tag:"Support, reviews & turning buyers into fans.",
     degree:"a customer experience & retention expert: support, FAQs, reviews, returns, loyalty, and turning one-time buyers into repeat fans. You protect the relationship after the sale." },
+  ...ENGINEERING,
+  ...PIPELINE,
 ];
 
 // ---- hiring hall candidates ----
@@ -301,6 +401,17 @@ const QUICK_PROMPTS = {
   mara:["Write my product description","Draft this week's posts","Punch up my landing page copy"],
   theo:["What feature ships first?","Simplify my main user flow","Critique my current design"],
   cole:["Write my FAQ","Turn buyers into repeat fans","Draft a review-request message"],
+  weston:["Outline my landing page structure","Audit my site's speed & SEO basics","Plan a one-page site I can ship this week"],
+  aria:["Scope an MVP version of my app","Native, hybrid or PWA — which fits?","Design my app's onboarding flow"],
+  sol:["Sketch my system architecture","Design the API for my core feature","What should my data model look like?"],
+  pixel:["Design my core gameplay loop","Prototype plan for my game idea","How do I make my game feel juicy?"],
+  nova:["Turn this ask into an intake brief","What questions should I answer first?","Draft an intake form for my clients"],
+  rhea:["Write user stories for my idea","Define acceptance criteria","What's out of scope here?"],
+  sage:["Break this job into a WBS","Give me 3 price options","What are the biggest scope risks?"],
+  fen:["Reuse the foundation or spec fresh?","What foundation pieces fit this job?","List the deltas to build on top"],
+  bolt:["Build from the current spec","Sketch the architecture & components","Draft the data schema"],
+  juno:["Review the latest build output","What edge cases are unhandled?","Write my quality checklist"],
+  mercer:["Write the release changelog","Run the ship checklist","Summarize the final deliverable"],
 };
 const QUICK_FALLBACK = ["What should I do first?","Give me a 7-day plan","What am I missing?"];
 
@@ -339,7 +450,7 @@ function Markdown({text}){
 }
 
 // ---- AI ----
-async function callAgent(system, history){
+async function callAgent(system, history, maxTokens=1000){
   const key=(localStorage.getItem('bureau_key')||'').trim();
   const model=(localStorage.getItem('bureau_model')||'claude-sonnet-4-6').trim()||'claude-sonnet-4-6';
   if(!key) return "I don't have a brain hooked up yet — tap the ⚙️ button (top right) and paste your Anthropic API key so I can start thinking.";
@@ -347,7 +458,7 @@ async function callAgent(system, history){
     const res = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
       headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body: JSON.stringify({ model, max_tokens:1000, system, messages:history })
+      body: JSON.stringify({ model, max_tokens:maxTokens, system, messages:history })
     });
     const data = await res.json();
     if(data.error) return "⚠️ "+(data.error.message||"API error")+" — check your key and model name in ⚙️ settings.";
@@ -381,9 +492,10 @@ function App(){
       log:[{date:today(),kind:"deploy",text:"Deployed to My First Project as Advertising lead."}] },
   ]);
   const [custom,setCustom] = useState(saved?.custom || []);
+  const [groups,setGroups] = useState(saved?.groups?.length ? saved.groups : DEFAULT_GROUPS);
   const allArch = useMemo(()=>[...ARCH,...custom],[custom]);
   const archById = id => allArch.find(a=>a.id===id) || ARCH[4];
-  useEffect(()=>{ try{ localStorage.setItem(LS_KEY, JSON.stringify({projects,instances,custom})); }catch(e){} },[projects,instances,custom]);
+  useEffect(()=>{ try{ localStorage.setItem(LS_KEY, JSON.stringify({projects,instances,custom,groups})); }catch(e){} },[projects,instances,custom,groups]);
 
   const [view,setView] = useState("hq");
   const [openInst,setOpenInst] = useState(null);
@@ -446,6 +558,9 @@ function App(){
           <button className={"chip hq"+(view==="hq"?" on":"")} onClick={()=>setView("hq")}>
             <span className="emo">🏛️</span> Roster (HQ) <span className="cnt">{allArch.length}</span>
           </button>
+          <button className={"chip hq"+(view==="graph"?" on":"")} onClick={()=>setView("graph")}>
+            <span className="emo">🕸️</span> Teams <span className="cnt">{groups.length}</span>
+          </button>
           {projects.map(p=>{
             const n=instances.filter(i=>i.projectId===p.id).length;
             return (
@@ -478,10 +593,15 @@ function App(){
           ? <RosterView allArch={allArch} projects={projects} instances={instances}
               onDeploy={(arch)=> projects.length===1 ? deploy(arch,projects[0].id) : setModal({type:"deploy",arch}) }
               onHire={()=>setModal({type:"hire"})} onGuide={()=>setModal({type:"guide"})} />
+          : view==="graph"
+          ? <GraphView groups={groups} setGroups={setGroups} allArch={allArch} projects={projects} instances={instances}
+              onDeploy={(arch)=> projects.length===1 ? deploy(arch,projects[0].id) : setModal({type:"deploy",arch}) }
+              onOpen={(inst)=>setOpenInst(inst.id)} grantXp={grantXp} addLog={addLog} toast={toast} />
           : <ProjectView project={projects.find(p=>p.id===view)} instances={instances.filter(i=>i.projectId===view)}
               archById={archById} onOpen={(inst)=>setOpenInst(inst.id)}
               onMove={(inst)=>setModal({type:"move",inst})} onClone={(inst)=>setModal({type:"clone",inst})}
-              goRoster={()=>setView("hq")} onBrief={()=>setModal({type:"standup",projectId:view})} />
+              goRoster={()=>setView("hq")} onBrief={()=>setModal({type:"standup",projectId:view})}
+              onEdit={()=>setModal({type:"editProject",projectId:view})} />
         }
 
         <p className="help">Agents are powered by Claude — they actually think. A <b>Degree</b> is fixed expertise; <b>Experience</b> grows per project and feeds back into how sharp each agent is here.</p>
@@ -509,6 +629,11 @@ function App(){
       )}
       {modal?.type==="newProject" && (
         <NewProject onClose={()=>setModal(null)} onCreate={(p)=>{ const np={...p,id:uid()}; setProjects(x=>[...x,np]); setView(np.id); setModal(null); toast("Project created"); }} />
+      )}
+      {modal?.type==="editProject" && (
+        <EditProject project={projects.find(p=>p.id===modal.projectId)} onClose={()=>setModal(null)}
+          onSave={(patch)=>{ setProjects(ps=>ps.map(p=>p.id===modal.projectId?{...p,...patch}:p)); setModal(null); toast("Project updated"); }}
+          onDelete={()=>{ setProjects(ps=>ps.filter(p=>p.id!==modal.projectId)); setInstances(is=>is.filter(i=>i.projectId!==modal.projectId)); setModal(null); setView("hq"); toast("Project deleted"); }} />
       )}
       {modal?.type==="newSpec" && (
         <NewSpecialist onClose={()=>setModal(null)} onCreate={(a)=>{ const na={...a,id:uid()}; setCustom(x=>[...x,na]); setModal(null); toast(`${a.name} added to roster`); }} />
@@ -581,8 +706,429 @@ function RosterView({allArch,projects,instances,onDeploy,onHire,onGuide}){
   );
 }
 
+// ---- Teams & graphs ----
+// Agents live in groups you can reshape freely — create squads, move
+// members between them, reorder a pipeline's flow. Each group renders as a
+// live graph: a LOOP around a hub, or a PIPELINE (intake → requirements →
+// scope & pricing → foundation or spec → build ⇄ review → merge). Pipeline
+// groups can be RUN: the request travels the line, each agent works the
+// packet and hands it on; build and review iterate until approved.
+const isReviewA = a => /review|\bqa\b/i.test(a.role);
+const isBuildA = a => /build/i.test(a.role);
+const isFoundationA = a => /foundation/i.test(a.role);
+
+function stageBrief(arch){
+  const r=arch.role.toLowerCase();
+  if(/intake/.test(r)) return "Your stage — INTAKE: restate the request, capture goals, users, constraints and unknowns. List the clarifying questions that matter with your best assumed answers (don't block on them). Hand a clean intake packet onward.";
+  if(/requirement/.test(r)) return "Your stage — REQUIREMENTS: turn the intake packet into user stories with acceptance criteria, functional & non-functional requirements, and an explicit out-of-scope list.";
+  if(/scope|pricing/.test(r)) return "Your stage — SCOPE & PRICING: work breakdown, effort estimates, a timeline, and 2–3 price options with assumptions and risks.";
+  if(/foundation/.test(r)) return "Your stage — FOUNDATION: open with exactly 'PATH: REUSE FOUNDATION' or 'PATH: FRESH SPEC'. If reusing, map the requirements onto the reusable app foundation (auth, payments, CRUD, dashboards, deploy) and list only the deltas to build. If fresh, write the build spec.";
+  if(/review|\bqa\b/.test(r)) return "Your stage — REVIEW: check the build output against the requirements. List defects, gaps and risks with severity. End with exactly 'VERDICT: APPROVED' or 'VERDICT: CHANGES REQUESTED'.";
+  if(/merge|release/.test(r)) return "Your stage — MERGE & RELEASE: consolidate the approved work into the final deliverable summary, a changelog, and a ship checklist.";
+  if(/build/.test(r)) return "Your stage — BUILD: implement the spec as concrete output — architecture, components, schemas, code sketches, copy. Real artifacts, not a plan about a plan.";
+  return "Your stage: advance the working packet with concrete output from your seat — build on what's there, don't repeat it.";
+}
+
+function GraphView({groups,setGroups,allArch,projects,instances,onDeploy,onOpen,grantXp,addLog,toast}){
+  const [gid,setGid] = useState(groups[0]?.id||null);
+  const [sel,setSel] = useState(null);
+  const [manage,setManage] = useState(false);
+  const [run,setRun] = useState(false);
+  useEffect(()=>{ if(!groups.some(g=>g.id===gid)){ setGid(groups[0]?.id||null); setSel(null); } },[groups]);
+  const group = groups.find(g=>g.id===gid)||null;
+  const byId = id => allArch.find(a=>a.id===id);
+  const members = (group?.members||[]).map(byId).filter(Boolean);
+  const pipeline = group?.kind==="pipeline";
+  const deployedOf = id => instances.filter(i=>i.archId===id);
+  const teamDeployed = members.reduce((s,a)=>s+deployedOf(a.id).length,0);
+  const selAgent = sel?byId(sel):null;
+  const selIdx = selAgent?members.findIndex(a=>a.id===sel):-1;
+  const selInsts = sel?deployedOf(sel):[];
+  const projName = pid => projects.find(p=>p.id===pid)?.name||"—";
+  const NR=46;
+
+  function createGroup(){
+    const ng={id:uid(),name:"New Squad",emoji:"🧭",kind:"loop",members:[]};
+    setGroups(gs=>[...gs,ng]); setGid(ng.id); setSel(null); setManage(true);
+  }
+  function removeFromGroup(archId){
+    setGroups(gs=>gs.map(g=>g.id===group.id?{...g,members:g.members.filter(m=>m!==archId)}:g));
+    setSel(null); toast("Removed from "+group.name);
+  }
+
+  // layout
+  let posOf=[], H=630, hub=null, arcs=[], flows=[], backs=[], bypasses=[];
+  if(members.length){
+    if(!pipeline){
+      const CX=320, CY=315, R=members.length>1?205:0; hub={x:CX,y:CY};
+      const angs=members.map((_,i)=>-90+i*360/members.length);
+      const P=d=>({x:CX+R*Math.cos(d*Math.PI/180),y:CY+R*Math.sin(d*Math.PI/180)});
+      posOf=angs.map(P);
+      if(members.length>1){
+        const inset=Math.min(17,180/members.length-4);
+        arcs=members.map((_,i)=>{
+          const a1=angs[i]+inset, a2=angs[(i+1)%members.length]+((i+1===members.length)?360:0)-inset;
+          const p1=P(a1), p2=P(a2);
+          return `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${R} ${R} 0 0 1 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+        });
+      }
+    }else{
+      const XS=[110,320,530];
+      posOf=members.map((_,i)=>{ const row=Math.floor(i/3), col=i%3; return {x:XS[row%2===0?col:2-col], y:130+row*195}; });
+      H=130+(Math.ceil(members.length/3)-1)*195+130;
+      const trim=(p1,p2,a,b)=>{ const dx=p2.x-p1.x, dy=p2.y-p1.y, L=Math.hypot(dx,dy)||1;
+        return {x1:p1.x+dx/L*a, y1:p1.y+dy/L*a, x2:p2.x-dx/L*b, y2:p2.y-dy/L*b}; };
+      for(let i=0;i<members.length-1;i++){
+        const t=trim(posOf[i],posOf[i+1],NR+6,NR+13);
+        flows.push(`M ${t.x1.toFixed(1)} ${t.y1.toFixed(1)} L ${t.x2.toFixed(1)} ${t.y2.toFixed(1)}`);
+        if(isReviewA(members[i+1])){
+          let b=i; for(let j=i;j>=0;j--){ if(isBuildA(members[j])){ b=j; break; } }
+          const p1=posOf[i+1], p2=posOf[b];
+          const dx=p2.x-p1.x, dy=p2.y-p1.y, L=Math.hypot(dx,dy)||1;
+          const ox=-dy/L*64, oy=dx/L*64;
+          const t2=trim(p1,p2,NR+10,NR+14);
+          backs.push({ d:`M ${t2.x1.toFixed(1)} ${t2.y1.toFixed(1)} Q ${((p1.x+p2.x)/2+ox).toFixed(1)} ${((p1.y+p2.y)/2+oy).toFixed(1)} ${t2.x2.toFixed(1)} ${t2.y2.toFixed(1)}`,
+            lx:(p1.x+p2.x)/2+ox*1.35, ly:(p1.y+p2.y)/2+oy*1.35 });
+        }
+      }
+      members.forEach((a,i)=>{
+        if(isFoundationA(a)&&i>0&&i<members.length-1){
+          const p1=posOf[i-1], p2=posOf[i+1];
+          const dx=p2.x-p1.x, dy=p2.y-p1.y, L=Math.hypot(dx,dy)||1;
+          const cx2=(p1.x+p2.x)/2-dy/L*80, cy2=(p1.y+p2.y)/2+dx/L*80;
+          const t2=trim(p1,p2,NR+10,NR+14);
+          bypasses.push({ d:`M ${t2.x1.toFixed(1)} ${t2.y1.toFixed(1)} Q ${cx2.toFixed(1)} ${cy2.toFixed(1)} ${t2.x2.toFixed(1)} ${t2.y2.toFixed(1)}`,
+            lx:.25*t2.x1+.5*cx2+.25*t2.x2, ly:.25*t2.y1+.5*cy2+.25*t2.y2-7 });
+        }
+      });
+    }
+  }
+
+  return (
+    <>
+      <div className="gtabs">
+        {groups.map(g=>(
+          <button key={g.id} className={"chip"+(g.id===gid?" on":"")} onClick={()=>{setGid(g.id);setSel(null);}}>
+            <span className="emo">{g.emoji}</span> {g.name} <span className="cnt">{g.members.length}</span>
+          </button>
+        ))}
+        <button className="chip-add" onClick={createGroup} aria-label="New group">＋</button>
+      </div>
+
+      <div className="shead">
+        <div>
+          <div className="eyebrow">Teams</div>
+          <h2>{group?`${group.emoji} ${group.name}`:"No groups yet"}</h2>
+          <p>{!group
+            ? <>Create a group and pull anyone from the roster into it.</>
+            : pipeline
+            ? <>A delivery line — the request flows stage to stage, <b>build ⇄ review</b> iterate until approved, then merge. Regroup or reorder it as you please.</>
+            : <>A loop squad around one hub — each member hands to the next. Regroup it as you please.</>}</p>
+        </div>
+        {group && (
+          <div style={{display:"flex",gap:7,flex:"0 0 auto"}}>
+            <button className="act sm" onClick={()=>setManage(true)}>⇄ Regroup</button>
+            <button className="act primary sm" disabled={!members.length} onClick={()=>setRun(true)}>{pipeline?"▶ Run":"🤝 Huddle"}</button>
+          </div>
+        )}
+      </div>
+
+      {!group || members.length===0 ? (
+        <div className="empty">
+          <div className="big">🕸️</div>
+          <h3>{group?"No agents in this group":"No groups"}</h3>
+          <div>{group?"Pull agents in from the roster — any mix you like.":"Make a group to wire agents together."}</div>
+          <button className="act primary" onClick={group?()=>setManage(true):createGroup}>{group?"⇄ Regroup":"＋ New group"}</button>
+        </div>
+      ) : (
+        <div className="graphbox">
+          <svg className="graph-svg" viewBox={`0 0 640 ${H}`} role="img"
+            aria-label={`${group.name}: ${members.map(a=>a.role).join(", ")} as a ${pipeline?"pipeline":"loop"} graph`}>
+            <defs>
+              <marker id="garrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#A08CFF" opacity="0.9"/>
+              </marker>
+              <marker id="gbarrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#F5B544" opacity="0.9"/>
+              </marker>
+            </defs>
+
+            {hub && posOf.map((p,i)=>(<line key={"sp"+i} className="gspoke" x1={hub.x} y1={hub.y} x2={p.x} y2={p.y}/>))}
+            {arcs.map((d,i)=>(<path key={"a"+i} className="gedge" d={d} markerEnd="url(#garrow)"/>))}
+            {flows.map((d,i)=>(<path key={"f"+i} className="gflow" d={d} markerEnd="url(#garrow)"/>))}
+            {bypasses.map((b,i)=>(
+              <g key={"by"+i}><path className="gbypass" d={b.d} markerEnd="url(#garrow)"/>
+                <text x={b.lx} y={b.ly} textAnchor="middle" className="gelabel">or: fresh spec</text></g>
+            ))}
+            {backs.map((b,i)=>(
+              <g key={"bk"+i}><path className="gback" d={b.d} markerEnd="url(#gbarrow)"/>
+                <text x={b.lx} y={b.ly} textAnchor="middle" className="gelabel gold">changes ↺</text></g>
+            ))}
+
+            {hub && (
+              <g className="ghub" onClick={()=>setSel(null)}>
+                <circle cx={hub.x} cy={hub.y} r="58" className="hubbody"/>
+                <text x={hub.x} y={hub.y-8} textAnchor="middle" className="ghub-emo">{group.emoji}</text>
+                <text x={hub.x} y={hub.y+20} textAnchor="middle" className="ghub-t">{group.name.toUpperCase().slice(0,14)}</text>
+                <text x={hub.x} y={hub.y+36} textAnchor="middle" className="ghub-s">{teamDeployed} deployed</text>
+              </g>
+            )}
+
+            {members.map((a,i)=>{
+              const p=posOf[i]; const n=deployedOf(a.id).length;
+              return (
+                <g key={a.id} className={"gnode"+(sel===a.id?" on":"")} onClick={()=>setSel(sel===a.id?null:a.id)}
+                   role="button" tabIndex="0" aria-label={`${a.name} — ${a.role}`}
+                   onKeyDown={e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setSel(sel===a.id?null:a.id);} }}>
+                  {pipeline && <text x={p.x} y={p.y-NR-14} textAnchor="middle" className="gstep">STEP {i+1}</text>}
+                  <circle cx={p.x} cy={p.y} r={NR} className="body" style={{stroke:a.color}}/>
+                  <text x={p.x} y={p.y-6} textAnchor="middle" className="gnode-emo">{a.emoji}</text>
+                  <text x={p.x} y={p.y+18} textAnchor="middle" className="gnode-n">{a.name}</text>
+                  <text x={p.x} y={p.y+NR+18} textAnchor="middle" className="gnode-r" style={{fill:a.color}}>{a.role}</text>
+                  {n>0 && (
+                    <g>
+                      <circle cx={p.x+NR-8} cy={p.y-NR+8} r="11" className="gbadge"/>
+                      <text x={p.x+NR-8} y={p.y-NR+12} textAnchor="middle" className="gbadge-t">{n}</text>
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      )}
+
+      {selAgent ? (
+        <div className="gdetail" style={{"--cardc":selAgent.color}}>
+          <div className="card-top">
+            <div className="av" style={{"--cardc":selAgent.color,"--avbg":selAgent.color+"22"}}>{selAgent.emoji}</div>
+            <div style={{minWidth:0}}>
+              <h3>{selAgent.name}</h3>
+              <div className="role">{selAgent.role}</div>
+              <div className="degree-badge">🎓 {selAgent.role} degree</div>
+            </div>
+          </div>
+          <div className="tag">{selAgent.tag}</div>
+          {members.length>1 && (
+            <div className="gflow-note mono">
+              {pipeline
+                ? `Stage ${selIdx+1} of ${members.length}${selIdx<members.length-1?` → hands to ${members[selIdx+1].name}`:" → ships it"}`
+                : `↻ hands to ${members[(selIdx+1)%members.length].name} · receives from ${members[(selIdx-1+members.length)%members.length].name}`}
+            </div>
+          )}
+          {selInsts.length>0 && (
+            <div className="gdeps">
+              {selInsts.map(i=>(
+                <button key={i.id} className="gdep" onClick={()=>onOpen(i)}>
+                  {projName(i.projectId)} · {rankOf(i.xp).title} · {i.xp} xp →
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="acts">
+            <button className="act primary" onClick={()=>onDeploy(selAgent)}>Deploy →</button>
+            <button className="act sm" onClick={()=>removeFromGroup(selAgent.id)}>− From group</button>
+          </div>
+        </div>
+      ) : group && members.length>0 ? (
+        <p className="help" style={{paddingTop:10}}>{pipeline
+          ? "Solid arrows are the flow; the gold dashed arc is the review sending work back to build; the faint curve skips the foundation when a fresh spec fits better. Tap a node to inspect & deploy."
+          : "The dashed ring is the hand-off loop — each member feeds the next and the cycle comes back around. Tap a node to inspect & deploy."}</p>
+      ) : null}
+
+      {manage && group && <ManageGroup group={group} allArch={allArch} setGroups={setGroups} toast={toast} onClose={()=>setManage(false)} />}
+      {run && group && <RelayRun group={group} members={members} projects={projects} instances={instances}
+        grantXp={grantXp} addLog={addLog} toast={toast} onClose={()=>setRun(false)} />}
+    </>
+  );
+}
+
+// ---- Regroup sheet ----
+function ManageGroup({group,allArch,setGroups,toast,onClose}){
+  const [confirmDel,setConfirmDel] = useState(false);
+  const upd = patch => setGroups(gs=>gs.map(g=>g.id===group.id?{...g,...patch}:g));
+  const move = (i,dir)=>{ const m=[...group.members], j=i+dir; if(j<0||j>=m.length) return; [m[i],m[j]]=[m[j],m[i]]; upd({members:m}); };
+  const bench = allArch.filter(a=>!group.members.includes(a.id));
+  const emojis = ["🧭","🕸️","🚚","🏗️","🎯","🧪","🛰️","🔥"];
+  return (
+    <Sheet title={`⇄ Regroup · ${group.name}`} onClose={onClose}>
+      <div className="wpane sheet-body">
+        <div className="field"><label>Group name</label><input value={group.name} onChange={e=>upd({name:e.target.value})} /></div>
+        <div className="field"><label>Icon</label><div className="emojirow">{emojis.map(e=>(<button key={e} className={group.emoji===e?"on":""} onClick={()=>upd({emoji:e})}>{e}</button>))}</div></div>
+        <div className="field"><label>Shape</label>
+          <div style={{display:"flex",gap:8}}>
+            <button className={"act"+(group.kind!=="pipeline"?" primary":"")} style={{flex:1}} onClick={()=>upd({kind:"loop"})}>⭕ Loop</button>
+            <button className={"act"+(group.kind==="pipeline"?" primary":"")} style={{flex:1}} onClick={()=>upd({kind:"pipeline"})}>➡ Pipeline</button>
+          </div>
+          <div style={{fontSize:11.5,color:"var(--mut2)",marginTop:6,lineHeight:1.5}}>
+            {group.kind==="pipeline"
+              ? "Order = flow order. The request travels the line; a Review member loops back to the nearest Build member until approved."
+              : "Members hand around a ring — order sets who hands to whom."}
+          </div>
+        </div>
+        <div className="field"><label>{group.kind==="pipeline"?"Flow order":"Members"} ({group.members.length})</label>
+          {group.members.length===0 && <div style={{color:"var(--mut)",fontSize:13,padding:"2px 0 8px"}}>Nobody here yet — add agents from the roster below.</div>}
+          <div className="plist">
+            {group.members.map((id,i)=>{ const a=allArch.find(x=>x.id===id); if(!a) return null;
+              return (
+                <div key={id} className="prow" style={{cursor:"default"}}>
+                  <span className="pe">{a.emoji}</span>
+                  <div style={{minWidth:0,flex:1}}><div className="pn">{a.name}</div><div className="ps">{a.role}</div></div>
+                  <div style={{display:"flex",gap:5,flex:"0 0 auto"}}>
+                    <button className="act sm" disabled={i===0} onClick={()=>move(i,-1)} aria-label="Move up">↑</button>
+                    <button className="act sm" disabled={i===group.members.length-1} onClick={()=>move(i,1)} aria-label="Move down">↓</button>
+                    <button className="act sm" style={{color:"var(--red)"}} onClick={()=>upd({members:group.members.filter(x=>x!==id)})} aria-label="Remove">✕</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="field"><label>Add from roster</label>
+          <div className="plist">
+            {bench.map(a=>(
+              <button key={a.id} className="prow" onClick={()=>upd({members:[...group.members,a.id]})}>
+                <span className="pe">{a.emoji}</span>
+                <div style={{minWidth:0,flex:1}}><div className="pn">{a.name}</div><div className="ps">{a.role}</div></div>
+                <span style={{color:"var(--green)",fontWeight:700,flex:"0 0 auto"}}>＋</span>
+              </button>
+            ))}
+            {bench.length===0 && <div style={{color:"var(--mut)",fontSize:13}}>The whole roster is already in this group.</div>}
+          </div>
+        </div>
+        <button className="act" style={{width:"100%",borderColor:"rgba(255,107,107,.4)",color:"var(--red)"}}
+          onClick={()=>{ if(!confirmDel){ setConfirmDel(true); return; } setGroups(gs=>gs.filter(g=>g.id!==group.id)); toast("Group disbanded — agents stay on the roster"); onClose(); }}>
+          {confirmDel?"Really disband this group?":"Disband group"}
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
+// ---- Relay run (pipeline run / team huddle) ----
+function RelayRun({group,members,projects,instances,grantXp,addLog,toast,onClose}){
+  const pipeline = group.kind==="pipeline";
+  const [projId,setProjId] = useState(projects[0]?.id||"");
+  const [req,setReq] = useState("");
+  const [stages,setStages] = useState([]);
+  const [phase,setPhase] = useState("setup");
+  const hasKey = !!(localStorage.getItem('bureau_key')||'').trim();
+  const proj = projects.find(p=>p.id===projId);
+
+  async function runAll(){
+    if(!req.trim()||phase==="running") return;
+    setPhase("running");
+    let packet = `CLIENT REQUEST:\n${req.trim()}`;
+    const rows = members.map(a=>({arch:a,status:"pending",output:"",note:""}));
+    setStages([...rows]);
+    const say = (arch,extra)=>{
+      const sys = `You are ${arch.name}, the ${arch.role} agent on the "${group.name}" team${proj?` working on the project "${proj.name}"${proj.desc?` (${proj.desc})`:""}`:""}.
+Your degree (fixed expertise): You are ${arch.degree}
+You work in a relay: you receive the working packet (everything the team has produced so far), do your part, and hand it on.
+${pipeline?stageBrief(arch):"Advance the work with concrete output from your seat — build on what's already there, don't repeat it."}
+Be tight and concrete. No preamble, no restating the packet.`;
+      const user = `${packet}\n\n---\n${extra||"Do your part now."}`;
+      return callAgent(sys,[{role:"user",content:user.length>9000?user.slice(-9000):user}],1400);
+    };
+    const credit = (arch,text)=>{
+      instances.filter(i=>i.archId===arch.id).forEach(i=>{
+        grantXp(i.id,30);
+        addLog(i.id,"task",`${group.name} run — ${arch.role} stage: ${text.slice(0,160).replace(/\n/g," ")}…`);
+      });
+    };
+    for(let i=0;i<rows.length;i++){
+      const a=rows[i].arch;
+      rows[i].status="thinking"; setStages([...rows]);
+      let out=await say(a);
+      if(pipeline&&isReviewA(a)&&i>0&&/VERDICT:\s*CHANGES/i.test(out)){
+        let bIdx=i-1; for(let j=i-1;j>=0;j--){ if(isBuildA(rows[j].arch)){ bIdx=j; break; } }
+        const builder=rows[bIdx];
+        let cycles=0;
+        while(cycles<2&&/VERDICT:\s*CHANGES/i.test(out)){
+          cycles++;
+          rows[i].note=`↺ round ${cycles}: changes requested — ${builder.arch.name} is revising`; setStages([...rows]);
+          const fix=await say(builder.arch,`REVISION ROUND ${cycles} — the reviewer requested changes:\n${out}\n\nRevise your build output to address every point. Output the full revised result.`);
+          builder.output=fix; packet+=`\n\n## ${builder.arch.role} (${builder.arch.name}) — revision ${cycles}\n${fix}`;
+          credit(builder.arch,fix); setStages([...rows]);
+          out=await say(a,"Re-review the latest revision above. Same format; end with the VERDICT line.");
+        }
+        rows[i].note=/VERDICT:\s*APPROVED/i.test(out)
+          ? `✓ approved after ${cycles} revision round${cycles>1?"s":""}`
+          : "⚠ still not approved after 2 rounds — passing on with notes";
+      }
+      out=out||"(no output)";
+      rows[i].output=out; rows[i].status="done";
+      packet+=`\n\n## ${a.role} (${a.name})\n${out}`;
+      credit(a,out); setStages([...rows]);
+    }
+    setPhase("done"); toast(pipeline?"Pipeline run complete":"Huddle complete");
+  }
+
+  return (
+    <Sheet title={`${pipeline?"▶ Run pipeline":"🤝 Team huddle"} · ${group.name}`} onClose={onClose}>
+      <div className="wpane sheet-body">
+        {phase==="setup" && (
+          <>
+            {!hasKey && (
+              <div className="brief" style={{marginBottom:14}}>
+                <div style={{fontSize:22}}>🔑</div>
+                <div style={{flex:1}}><h4>No API key yet</h4><p>Add your Anthropic API key in ⚙️ settings first — the whole team thinks with it.</p></div>
+              </div>
+            )}
+            <p style={{color:"var(--mut)",fontSize:13.5,lineHeight:1.6,marginBottom:14}}>
+              {pipeline
+                ? <>The request travels the line: <b>{members.map(m=>m.role).join(" → ")}</b>. Build and review iterate until approved, then it ships.</>
+                : <>All {members.length} members work the same packet in turn, each building on the last.</>}
+            </p>
+            {projects.length>0 && (
+              <div className="field"><label>Project context (optional)</label>
+                <select value={projId} onChange={e=>setProjId(e.target.value)}>
+                  <option value="">— none —</option>
+                  {projects.map(p=>(<option key={p.id} value={p.id}>{p.emoji} {p.name}</option>))}
+                </select>
+              </div>
+            )}
+            <div className="field"><label>{pipeline?"The client request":"What should the team work on?"}</label>
+              <textarea rows={4} value={req} onChange={e=>setReq(e.target.value)}
+                placeholder={pipeline?"e.g. A booking site for my dog-grooming studio: calendar, deposits, reminders.":"e.g. Plan the mobile version of our storefront."} />
+            </div>
+            <button className="act primary" style={{width:"100%"}} disabled={!req.trim()||!hasKey} onClick={runAll}>
+              {pipeline?`Send it down the line (${members.length} stages)`:`Start the huddle (${members.length} voices)`}
+            </button>
+          </>
+        )}
+        {phase!=="setup" && (
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {stages.map((s,i)=>(
+              <div key={i} className="stage" style={{"--cardc":s.arch.color}}>
+                <div className="stage-h">
+                  <span className={"stagedot "+s.status}></span>
+                  <span style={{fontSize:16}}>{s.arch.emoji}</span>
+                  <b style={{fontFamily:"'Space Grotesk'"}}>{s.arch.name}</b>
+                  <span style={{color:s.arch.color,fontSize:12,fontWeight:600}}>{s.arch.role}</span>
+                  {pipeline && <span className="mono" style={{marginLeft:"auto",fontSize:10,color:"var(--mut2)"}}>STEP {i+1}</span>}
+                </div>
+                {s.note && <div className="stage-note">{s.note}</div>}
+                {s.status==="thinking" && <div style={{padding:"6px 2px 0"}}><span className="typing"><i></i><i></i><i></i></span></div>}
+                {s.output && (
+                  <details className="stage-out" open={phase==="done"&&i===stages.length-1}>
+                    <summary>output</summary>
+                    <div style={{fontSize:13.5,lineHeight:1.55,paddingTop:6}}><Markdown text={s.output}/></div>
+                  </details>
+                )}
+              </div>
+            ))}
+            {phase==="running" && stages.every(s=>s.status!=="thinking") && <div style={{textAlign:"center",color:"var(--mut)",fontSize:12,padding:6}}>Handing the packet on…</div>}
+            {phase==="done" && <button className="act primary" style={{width:"100%"}} onClick={onClose}>Done</button>}
+          </div>
+        )}
+      </div>
+    </Sheet>
+  );
+}
+
 // ---- Project view ----
-function ProjectView({project,instances,archById,onOpen,onMove,onClone,goRoster,onBrief}){
+function ProjectView({project,instances,archById,onOpen,onMove,onClone,goRoster,onBrief,onEdit}){
   if(!project) return null;
   return (
     <>
@@ -592,7 +1138,10 @@ function ProjectView({project,instances,archById,onOpen,onMove,onClone,goRoster,
           <h2>{project.name}</h2>
           <p>{project.desc}</p>
         </div>
-        {instances.length>0 && <button className="act sm" style={{flex:"0 0 auto"}} onClick={onBrief}>☀️ Daily standup</button>}
+        <div style={{display:"flex",gap:7,flex:"0 0 auto"}}>
+          <button className="act sm" onClick={onEdit}>✎ Edit</button>
+          {instances.length>0 && <button className="act sm" onClick={onBrief}>☀️ Daily standup</button>}
+        </div>
       </div>
       {instances.length===0
         ? <div className="empty">
@@ -652,7 +1201,7 @@ function Workspace({inst,arch,project,ownerName,onClose,setInstances,grantXp,add
     const newChat=[...inst.chat,{role:"user",content:text}];
     setInstances(prev=>prev.map(i=>i.id===inst.id?{...i,chat:newChat}:i));
     const system=buildSystem(arch,{...inst,chat:newChat},project,ownerName);
-    const reply=await callAgent(system,newChat);
+    const reply=await callAgent(system,newChat.slice(-30));
     setInstances(prev=>prev.map(i=>i.id===inst.id?{...i,chat:[...newChat,{role:"assistant",content:reply}]}:i));
     grantXp(inst.id,12); setBusy(false);
   }
@@ -838,6 +1387,28 @@ function NewProject({onClose,onCreate}){
   );
 }
 
+// ---- Edit project ----
+function EditProject({project,onClose,onSave,onDelete}){
+  const [name,setName]=useState(project?.name||""); const [desc,setDesc]=useState(project?.desc||""); const [emoji,setEmoji]=useState(project?.emoji||"🚀");
+  const [confirmDel,setConfirmDel]=useState(false);
+  const emojis=["🚀","🛍️","🏗️","🎯","🎨","📱","💡","🍼","🎮","🏷️","🧱","✨"];
+  if(!project) return null;
+  return (
+    <Sheet title={`✎ Edit · ${project.name}`} onClose={onClose}>
+      <div className="wpane sheet-body">
+        <div className="field"><label>Icon</label><div className="emojirow">{emojis.map(e=>(<button key={e} className={emoji===e?"on":""} onClick={()=>setEmoji(e)}>{e}</button>))}</div></div>
+        <div className="field"><label>Project name</label><input value={name} onChange={e=>setName(e.target.value)} /></div>
+        <div className="field"><label>What is it? (your agents read this)</label><textarea rows={3} value={desc} onChange={e=>setDesc(e.target.value)} /></div>
+        <button className="act primary" style={{width:"100%"}} disabled={!name.trim()} onClick={()=>onSave({name:name.trim(),desc:desc.trim(),emoji})}>Save changes</button>
+        <button className="act" style={{width:"100%",marginTop:10,borderColor:"rgba(255,107,107,.4)",color:"var(--red)"}}
+          onClick={()=>{ if(!confirmDel){ setConfirmDel(true); return; } onDelete(); }}>
+          {confirmDel?"Really delete? Its deployed agents go too":"Delete project"}
+        </button>
+      </div>
+    </Sheet>
+  );
+}
+
 // ---- New specialist (custom / AI draft) ----
 function NewSpecialist({onClose,onCreate}){
   const [name,setName]=useState(""); const [role,setRole]=useState(""); const [degree,setDegree]=useState(""); const [emoji,setEmoji]=useState("🧩");
@@ -925,6 +1496,7 @@ function Guide({onClose}){
         <Step n="3" t="Deploy agents into it">From the Roster, tap <b>Deploy</b> on any specialist and choose the project. They show up on the project's team, ready to work.</Step>
         <Step n="4" t="Put them to work">Open an agent and <b>chat</b> — ask questions or hand them a task and they'll do it. Every exchange earns them experience on that project.</Step>
         <Step n="5" t="Update them daily">In an agent's <b>Experience</b> tab tap <b>Daily briefing</b>, or run a project's <b>Daily standup</b> to brief the whole team at once. They review the project, write today's plan, and rank up.</Step>
+        <Step n="6" t="Group them & run the line">Open <b>🕸️ Teams</b>. Regroup agents into any squad you like, or use the <b>Delivery Pipeline</b> — intake → requirements → scope & pricing → foundation or spec → build ⇄ review → merge — and hit <b>▶ Run</b> to watch them work a request together, handing it down the line.</Step>
         <div style={{height:1,background:"var(--line)",margin:"4px 0 18px"}}></div>
         <div className="disp" style={{fontWeight:600,fontSize:14.5,marginBottom:10}}>Two things to know</div>
         <div style={{display:"flex",gap:11,marginBottom:13}}>
@@ -985,7 +1557,7 @@ function SettingsSheet({onClose,toast}){
         <div className="field"><label>Model</label>
           <input value={model} onChange={e=>setModel(e.target.value)} placeholder="claude-sonnet-4-6" />
           <div style={{fontSize:11.5,color:"var(--mut2)",marginTop:6,lineHeight:1.5}}>claude-sonnet-4-6 is the smart default. claude-haiku-4-5 is cheaper and faster; claude-opus-4-8 is the heavyweight.</div></div>
-        <button className="act primary" style={{width:"100%"}} disabled={!key.trim()} onClick={save}>Save</button>
+        <button className="act primary" style={{width:"100%"}} onClick={save}>Save</button>
       </div>
     </Sheet>
   );
