@@ -205,9 +205,55 @@ const STYLES = `
 .toast.gold{border-color:var(--gold);color:var(--gold);box-shadow:0 12px 34px rgba(245,181,68,.18)}
 @keyframes pop{from{transform:translateY(16px) scale(.96);opacity:0}}
 
+/* engineering graph */
+.graphbox{margin-top:16px;background:linear-gradient(180deg,var(--panel2),var(--panel) 75%);border:1px solid var(--line);border-radius:17px;padding:8px 4px;overflow:hidden;animation:rise .45s both}
+.graph-svg{width:100%;max-width:620px;display:block;margin:0 auto}
+.gspoke{stroke:var(--line2);stroke-width:1.5;opacity:.55;stroke-dasharray:2 7}
+.gedge{stroke:var(--violet);stroke-width:2;fill:none;opacity:.6;stroke-dasharray:7 9;animation:gflow 1.5s linear infinite}
+@keyframes gflow{to{stroke-dashoffset:-16}}
+.ghub{cursor:pointer}
+.ghub .hubbody{fill:var(--panel3);stroke:var(--line2);stroke-width:1.5}
+.ghub-emo{font-size:26px}
+.ghub-t{fill:var(--txt);font-family:'Space Grotesk';font-size:13px;font-weight:700;letter-spacing:.14em}
+.ghub-s{fill:var(--mut);font-family:'JetBrains Mono',monospace;font-size:10px}
+.gnode{cursor:pointer}
+.gnode .body{fill:var(--panel);stroke-width:2;transition:fill .15s}
+.gnode:hover .body{fill:var(--panel2)}
+.gnode.on .body{fill:var(--panel3);stroke-width:3}
+.gnode:focus-visible{outline:2px solid var(--violet2);outline-offset:2px}
+.gnode-emo{font-size:25px}
+.gnode-n{fill:var(--txt);font-family:'Space Grotesk';font-size:14px;font-weight:600}
+.gnode-r{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.03em}
+.gbadge{fill:var(--violet);stroke:var(--ink);stroke-width:2}
+.gbadge-t{fill:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700}
+.gdetail{margin-top:12px;background:linear-gradient(180deg,var(--panel2),var(--panel) 70%);border:1px solid var(--cardc,var(--line));border-radius:17px;padding:16px;animation:rise .3s both}
+.gdetail h3{font-family:'Space Grotesk';font-size:16.5px;font-weight:600;line-height:1.15}
+.gflow-note{margin-top:11px;padding:8px 11px;border-radius:10px;background:rgba(124,92,255,.08);border:1px solid rgba(124,92,255,.25);color:var(--violet2);font-size:11px}
+.gdeps{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.gdep{padding:6px 11px;border-radius:9px;border:1px solid var(--line2);background:var(--panel3);color:var(--txt);font-size:11.5px;font-family:'JetBrains Mono',monospace;transition:.15s}
+.gdep:hover{border-color:var(--violet);color:var(--violet2)}
+
 .help{font-size:12px;color:var(--mut2);text-align:center;padding:22px 12px 4px;line-height:1.55}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 `;
+
+// ---- engineering wing (websites · apps · software · games) ----
+// Four builders who share one mission: ship the product. They're wired
+// together in the Engineering Graph view as a loop around a central hub.
+const ENGINEERING = [
+  { id:"weston", name:"Weston", role:"Website Engineering", emoji:"🌐", color:"#56CCF2", team:"engineering",
+    tag:"Fast, responsive sites that convert.",
+    degree:"a website engineer: semantic HTML, modern CSS, responsive & accessible layouts, Core Web Vitals and performance, SEO-ready markup, analytics, and shipping polished marketing sites and landing pages that load fast and turn visitors into customers." },
+  { id:"aria", name:"Aria", role:"App Engineering", emoji:"📲", color:"#7C5CFF", team:"engineering",
+    tag:"Mobile & web apps people keep open.",
+    degree:"an application engineer: cross-platform mobile and web apps (React Native, Flutter, PWAs), state management, offline sync, auth, push notifications, app-store deployment, and smooth, native-feeling UX that keeps users coming back." },
+  { id:"sol", name:"Sol", role:"Software Engineering", emoji:"🛠️", color:"#3DDC97", team:"engineering",
+    tag:"Robust backends, APIs & architecture.",
+    degree:"a software engineer: backend services, clean APIs, data modeling, databases, system architecture, testing, CI/CD, security, scalability and reliability. You turn fuzzy requirements into maintainable, well-structured software." },
+  { id:"pixel", name:"Pixel", role:"Game Engineering", emoji:"🎮", color:"#F5B544", team:"engineering",
+    tag:"Gameplay loops, physics & polish.",
+    degree:"a game engineer: core gameplay loops, engines (Unity, Unreal, Godot), physics, input, real-time rendering, performance budgets, and juicy, satisfying game feel from first prototype to shipped build." },
+];
 
 // ---- roster (starting hires) ----
 const ARCH = [
@@ -241,6 +287,7 @@ const ARCH = [
   { id:"cole", name:"Cole", role:"Customer Experience", emoji:"💬", color:"#7C8CFF",
     tag:"Support, reviews & turning buyers into fans.",
     degree:"a customer experience & retention expert: support, FAQs, reviews, returns, loyalty, and turning one-time buyers into repeat fans. You protect the relationship after the sale." },
+  ...ENGINEERING,
 ];
 
 // ---- hiring hall candidates ----
@@ -301,6 +348,10 @@ const QUICK_PROMPTS = {
   mara:["Write my product description","Draft this week's posts","Punch up my landing page copy"],
   theo:["What feature ships first?","Simplify my main user flow","Critique my current design"],
   cole:["Write my FAQ","Turn buyers into repeat fans","Draft a review-request message"],
+  weston:["Outline my landing page structure","Audit my site's speed & SEO basics","Plan a one-page site I can ship this week"],
+  aria:["Scope an MVP version of my app","Native, hybrid or PWA — which fits?","Design my app's onboarding flow"],
+  sol:["Sketch my system architecture","Design the API for my core feature","What should my data model look like?"],
+  pixel:["Design my core gameplay loop","Prototype plan for my game idea","How do I make my game feel juicy?"],
 };
 const QUICK_FALLBACK = ["What should I do first?","Give me a 7-day plan","What am I missing?"];
 
@@ -446,6 +497,9 @@ function App(){
           <button className={"chip hq"+(view==="hq"?" on":"")} onClick={()=>setView("hq")}>
             <span className="emo">🏛️</span> Roster (HQ) <span className="cnt">{allArch.length}</span>
           </button>
+          <button className={"chip hq"+(view==="graph"?" on":"")} onClick={()=>setView("graph")}>
+            <span className="emo">🕸️</span> Engineering Graph <span className="cnt">{ENGINEERING.length}</span>
+          </button>
           {projects.map(p=>{
             const n=instances.filter(i=>i.projectId===p.id).length;
             return (
@@ -478,6 +532,10 @@ function App(){
           ? <RosterView allArch={allArch} projects={projects} instances={instances}
               onDeploy={(arch)=> projects.length===1 ? deploy(arch,projects[0].id) : setModal({type:"deploy",arch}) }
               onHire={()=>setModal({type:"hire"})} onGuide={()=>setModal({type:"guide"})} />
+          : view==="graph"
+          ? <GraphView agents={ENGINEERING} projects={projects} instances={instances}
+              onDeploy={(arch)=> projects.length===1 ? deploy(arch,projects[0].id) : setModal({type:"deploy",arch}) }
+              onOpen={(inst)=>setOpenInst(inst.id)} />
           : <ProjectView project={projects.find(p=>p.id===view)} instances={instances.filter(i=>i.projectId===view)}
               archById={archById} onOpen={(inst)=>setOpenInst(inst.id)}
               onMove={(inst)=>setModal({type:"move",inst})} onClone={(inst)=>setModal({type:"clone",inst})}
@@ -577,6 +635,128 @@ function RosterView({allArch,projects,instances,onDeploy,onHire,onGuide}){
           </div>
         ))}
       </div>
+    </>
+  );
+}
+
+// ---- Engineering Graph ----
+// The four engineering agents as a continuous loop — Website → App →
+// Software → Game → back to Website — wired around a central hub.
+const ENG_LOOP = ["weston","aria","sol","pixel"];
+const ENG_ANGLE = { weston:-90, aria:0, sol:90, pixel:180 };
+const ENG_HAND = {
+  weston:"hands the storefront to", aria:"hands the client to",
+  sol:"powers the runtime for", pixel:"feeds learnings back to",
+};
+
+function GraphView({agents,projects,instances,onDeploy,onOpen}){
+  const [sel,setSel] = useState(null);
+  const CX=320, CY=315, R=205, NR=46;
+  const P = deg => ({ x: CX + R*Math.cos(deg*Math.PI/180), y: CY + R*Math.sin(deg*Math.PI/180) });
+  const byId = id => agents.find(a=>a.id===id);
+  const deployedOf = id => instances.filter(i=>i.archId===id);
+  const engDeployed = instances.filter(i=>agents.some(a=>a.id===i.archId));
+  const selAgent = sel ? byId(sel) : null;
+  const selInsts = sel ? deployedOf(sel) : [];
+  const projName = pid => projects.find(p=>p.id===pid)?.name || "—";
+
+  // arc between consecutive loop nodes, inset so arrowheads clear the node circles
+  const arc = (fromId,toId) => {
+    const a1=ENG_ANGLE[fromId]+17, a2=ENG_ANGLE[toId]-17;
+    const p1=P(a1), p2=P(a2);
+    return `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${R} ${R} 0 0 1 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  };
+
+  return (
+    <>
+      <div className="shead">
+        <div>
+          <div className="eyebrow">Engineering wing</div>
+          <h2>The engineering graph</h2>
+          <p>Four builders, one loop: <b>Website → App → Software → Game</b> — and back around. Every node hangs off the same hub. Tap a node to inspect &amp; deploy.</p>
+        </div>
+      </div>
+
+      <div className="graphbox">
+        <svg className="graph-svg" viewBox="0 0 640 630" role="img" aria-label="Engineering agents graph: Website, App, Software and Game engineering connected in a loop around a central hub">
+          <defs>
+            <marker id="garrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#A08CFF" opacity="0.9"/>
+            </marker>
+          </defs>
+
+          {/* hub spokes */}
+          {ENG_LOOP.map(id=>{ const p=P(ENG_ANGLE[id]); return (
+            <line key={"sp"+id} className="gspoke" x1={CX} y1={CY} x2={p.x} y2={p.y}/>
+          );})}
+
+          {/* the loop */}
+          {ENG_LOOP.map((id,i)=>(
+            <path key={"e"+id} className="gedge" d={arc(id, ENG_LOOP[(i+1)%ENG_LOOP.length])} markerEnd="url(#garrow)"/>
+          ))}
+
+          {/* hub */}
+          <g className="ghub" onClick={()=>setSel(null)}>
+            <circle cx={CX} cy={CY} r="58" className="hubbody"/>
+            <text x={CX} y={CY-8} textAnchor="middle" className="ghub-emo">⚙️</text>
+            <text x={CX} y={CY+20} textAnchor="middle" className="ghub-t">ENGINEERING</text>
+            <text x={CX} y={CY+36} textAnchor="middle" className="ghub-s">{engDeployed.length} deployed</text>
+          </g>
+
+          {/* agent nodes */}
+          {ENG_LOOP.map(id=>{
+            const a=byId(id); if(!a) return null;
+            const p=P(ENG_ANGLE[id]); const n=deployedOf(id).length;
+            return (
+              <g key={id} className={"gnode"+(sel===id?" on":"")} onClick={()=>setSel(sel===id?null:id)}
+                 role="button" tabIndex="0" aria-label={`${a.name} — ${a.role}`}
+                 onKeyDown={e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setSel(sel===id?null:id);} }}>
+                <circle cx={p.x} cy={p.y} r={NR} className="body" style={{stroke:a.color}}/>
+                <text x={p.x} y={p.y-6} textAnchor="middle" className="gnode-emo">{a.emoji}</text>
+                <text x={p.x} y={p.y+18} textAnchor="middle" className="gnode-n">{a.name}</text>
+                <text x={p.x} y={p.y+NR+18} textAnchor="middle" className="gnode-r" style={{fill:a.color}}>{a.role}</text>
+                {n>0 && (
+                  <g>
+                    <circle cx={p.x+NR-8} cy={p.y-NR+8} r="11" className="gbadge"/>
+                    <text x={p.x+NR-8} y={p.y-NR+12} textAnchor="middle" className="gbadge-t">{n}</text>
+                  </g>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {selAgent ? (
+        <div className="gdetail" style={{"--cardc":selAgent.color}}>
+          <div className="card-top">
+            <div className="av" style={{"--cardc":selAgent.color,"--avbg":selAgent.color+"22"}}>{selAgent.emoji}</div>
+            <div style={{minWidth:0}}>
+              <h3>{selAgent.name}</h3>
+              <div className="role">{selAgent.role}</div>
+              <div className="degree-badge">🎓 {selAgent.role} degree</div>
+            </div>
+          </div>
+          <div className="tag">{selAgent.tag}</div>
+          <div className="gflow-note mono">
+            ↻ {selAgent.name} {ENG_HAND[selAgent.id]} {byId(ENG_LOOP[(ENG_LOOP.indexOf(selAgent.id)+1)%ENG_LOOP.length])?.name}
+          </div>
+          {selInsts.length>0 && (
+            <div className="gdeps">
+              {selInsts.map(i=>(
+                <button key={i.id} className="gdep" onClick={()=>onOpen(i)}>
+                  {projName(i.projectId)} · {rankOf(i.xp).title} · {i.xp} xp →
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="acts">
+            <button className="act primary" onClick={()=>onDeploy(selAgent)}>Deploy →</button>
+          </div>
+        </div>
+      ) : (
+        <p className="help" style={{paddingTop:10}}>The dashed ring is the build loop — each engineer hands off to the next and the cycle feeds back on itself. Spokes tie everyone to the shared hub.</p>
+      )}
     </>
   );
 }
