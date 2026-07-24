@@ -10,7 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-<style>html,body{margin:0;padding:0;background:#0A0D13}</style>
+<style>html{color-scheme:dark}html,body{margin:0;padding:0;background:#0A0D13}</style>
 </head>
 <body>
 <div id="root"></div>
@@ -35,7 +35,7 @@ const STYLES = `
   --violet:#7C5CFF; --violet2:#A08CFF; --gold:#F5B544; --green:#3DDC97; --red:#FF6B6B;
 }
 *{box-sizing:border-box}
-.bureau{font-family:'Inter',system-ui,sans-serif;background:var(--ink);color:var(--txt);min-height:100vh;-webkit-font-smoothing:antialiased;position:relative}
+.bureau{font-family:'Inter',system-ui,sans-serif;background:var(--ink);color:var(--txt);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;position:relative}
 .bureau::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(700px 420px at 85% -10%,rgba(124,92,255,.13),transparent 60%),
              radial-gradient(560px 380px at -10% 22%,rgba(245,181,68,.05),transparent 55%)}
@@ -47,7 +47,7 @@ const STYLES = `
 
 /* shell */
 .wrap{max-width:1100px;margin:0 auto;padding:0 14px 96px}
-.topbar{position:sticky;top:0;z-index:30;background:rgba(10,13,19,.82);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(10,13,19,.82);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
 .topbar-in{max-width:1100px;margin:0 auto;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .mark{font-family:'Space Grotesk';font-weight:700;letter-spacing:.16em;font-size:15px;display:flex;align-items:center;gap:9px}
 .mark .dot{width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,var(--violet),var(--violet2));box-shadow:0 0 14px rgba(124,92,255,.8);animation:pulse 3s ease-in-out infinite}
@@ -126,11 +126,11 @@ const STYLES = `
 .empty .act{display:inline-flex;flex:0 0 auto;margin-top:16px;padding:11px 20px}
 
 /* sheet */
-.scrim{position:fixed;inset:0;background:rgba(4,6,10,.74);backdrop-filter:blur(5px);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+.scrim{position:fixed;inset:0;background:rgba(4,6,10,.74);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
 @media(min-width:680px){.scrim{align-items:center;padding:24px}}
 @keyframes fade{from{opacity:0}}
-.sheet{width:100%;max-width:640px;max-height:92vh;background:var(--panel);border:1px solid var(--line2);border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:slide .28s cubic-bezier(.2,.8,.2,1);box-shadow:0 -18px 60px rgba(0,0,0,.5)}
-@media(min-width:680px){.sheet{border-radius:22px;max-height:86vh;box-shadow:0 24px 70px rgba(0,0,0,.6)}}
+.sheet{width:100%;max-width:640px;max-height:92vh;max-height:92dvh;background:var(--panel);border:1px solid var(--line2);border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:slide .28s cubic-bezier(.2,.8,.2,1);box-shadow:0 -18px 60px rgba(0,0,0,.5)}
+@media(min-width:680px){.sheet{border-radius:22px;max-height:86vh;max-height:86dvh;box-shadow:0 24px 70px rgba(0,0,0,.6)}}
 @keyframes slide{from{transform:translateY(44px);opacity:.5}}
 .sheet-grip{width:38px;height:4px;border-radius:4px;background:var(--line2);margin:9px auto 0}
 .sheet-h{padding:12px 16px 14px;border-bottom:1px solid var(--line);display:flex;gap:13px;align-items:center}
@@ -247,6 +247,7 @@ const STYLES = `
 .stagedot{width:9px;height:9px;border-radius:50%;background:var(--mut2);flex:0 0 auto}
 .stagedot.thinking{background:var(--gold);animation:dotpulse 1.1s ease-in-out infinite}
 .stagedot.done{background:var(--green)}
+.stagedot.error{background:var(--red)}
 @keyframes dotpulse{50%{opacity:.3}}
 .stage-note{margin-top:7px;font-size:11.5px;color:var(--gold);font-family:'JetBrains Mono',monospace}
 .stage-out{margin-top:8px}
@@ -495,7 +496,9 @@ function App(){
   const [groups,setGroups] = useState(saved?.groups?.length ? saved.groups : DEFAULT_GROUPS);
   const allArch = useMemo(()=>[...ARCH,...custom],[custom]);
   const archById = id => allArch.find(a=>a.id===id) || ARCH[4];
-  useEffect(()=>{ try{ localStorage.setItem(LS_KEY, JSON.stringify({projects,instances,custom,groups})); }catch(e){} },[projects,instances,custom,groups]);
+  const quotaWarned = useRef(false);
+  useEffect(()=>{ try{ localStorage.setItem(LS_KEY, JSON.stringify({projects,instances,custom,groups})); quotaWarned.current=false; }
+    catch(e){ if(!quotaWarned.current){ quotaWarned.current=true; toast("⚠️ This device's storage is full — recent changes may not be saved. Trim old chats or projects.",true); } } },[projects,instances,custom,groups]);
 
   const [view,setView] = useState("hq");
   const [openInst,setOpenInst] = useState(null);
@@ -1036,10 +1039,13 @@ Be tight and concrete. No preamble, no restating the packet.`;
         addLog(i.id,"task",`${group.name} run — ${arch.role} stage: ${text.slice(0,160).replace(/\n/g," ")}…`);
       });
     };
+    const isErr = t => typeof t==="string" && (/^⚠️/.test(t) || /couldn't reach the model/i.test(t) || /don't have a brain/i.test(t));
+    const stop = (idx,rs,txt)=>{ rs[idx].status="error"; rs[idx].note="⚠ stopped — "+String(txt).replace(/\n/g," ").slice(0,150); setStages([...rs]); setPhase("done"); toast("Run stopped on an API error — check your key in ⚙ settings",true); };
     for(let i=0;i<rows.length;i++){
       const a=rows[i].arch;
       rows[i].status="thinking"; setStages([...rows]);
       let out=await say(a);
+      if(isErr(out)){ stop(i,rows,out); return; }
       if(pipeline&&isReviewA(a)&&i>0&&/VERDICT:\s*CHANGES/i.test(out)){
         let bIdx=i-1; for(let j=i-1;j>=0;j--){ if(isBuildA(rows[j].arch)){ bIdx=j; break; } }
         const builder=rows[bIdx];
@@ -1048,9 +1054,11 @@ Be tight and concrete. No preamble, no restating the packet.`;
           cycles++;
           rows[i].note=`↺ round ${cycles}: changes requested — ${builder.arch.name} is revising`; setStages([...rows]);
           const fix=await say(builder.arch,`REVISION ROUND ${cycles} — the reviewer requested changes:\n${out}\n\nRevise your build output to address every point. Output the full revised result.`);
+          if(isErr(fix)){ stop(bIdx,rows,fix); return; }
           builder.output=fix; packet+=`\n\n## ${builder.arch.role} (${builder.arch.name}) — revision ${cycles}\n${fix}`;
           credit(builder.arch,fix); setStages([...rows]);
           out=await say(a,"Re-review the latest revision above. Same format; end with the VERDICT line.");
+          if(isErr(out)){ stop(i,rows,out); return; }
         }
         rows[i].note=/VERDICT:\s*APPROVED/i.test(out)
           ? `✓ approved after ${cycles} revision round${cycles>1?"s":""}`
