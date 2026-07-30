@@ -227,8 +227,10 @@ function paintCreature(ctx, W, H, id, view) {
   }
 
   // --- tail ---
-  const tailX = cx + (back ? 0 : bodyRx * 0.92);
-  const tailY = bodyCy - bodyRy * 0.15;
+  // From behind, a centred tail hides inside the body — push it out to one side so
+  // the player's own Guardian still reads as itself.
+  const tailX = cx + bodyRx * (back ? -1.0 : 0.92);
+  const tailY = bodyCy - bodyRy * (back ? 0.35 : 0.15);
   if (s.tail === 'flame') flameTail(ctx, tailX, tailY, 18 * M);
   else if (s.tail === 'leaf') leafTail(ctx, tailX, tailY, 16 * M, RAMP.leaf);
   else if (s.tail === 'bolt') boltTail(ctx, tailX - 2, tailY, 9 * M);
