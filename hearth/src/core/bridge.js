@@ -88,6 +88,12 @@ export const Hooks = {
     lockInput(v) {},
   },
 
+  /** ui/hud.js — the overworld HUD. The world calls draw() every frame. */
+  hud: {
+    draw(map) {},
+    invalidateMinimap() {},
+  },
+
   /** ui/party.js — party & guardian screens, used by battle and the pause menu. */
   party: {
     async openParty(opts) { return -1; },

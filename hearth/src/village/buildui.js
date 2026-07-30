@@ -460,7 +460,7 @@ const waitFrames = n => new Promise(res => {
 });
 
 export function register() {
-  Scenes.register('village', () => boardScene(Scenes.top?.__params));
-  Scenes.register('build', () => buildModeScene(Scenes.top?.__params));
-  Scenes.register('upgradecard', () => upgradeCardScene(Scenes.top?.__params));
+  Scenes.register('village', p => boardScene(p));
+  Scenes.register('build', p => buildModeScene(p));
+  Scenes.register('upgradecard', p => upgradeCardScene(p));
 }

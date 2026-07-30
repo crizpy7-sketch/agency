@@ -98,7 +98,7 @@ function fadeScene(dir, frames, onDone) {
 export function installMinimalUI() {
   if (UIx.real) return false;
   globalThis.__R = R;
-  Scenes.register('__textbox', () => textboxScene(Scenes.top?.__params || {}));
+  Scenes.register('__textbox', p => textboxScene(p || {}));
 
   // real:false keeps this replaceable by ui/textbox.js when that lands.
   UIx.install({

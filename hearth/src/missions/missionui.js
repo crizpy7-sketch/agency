@@ -244,5 +244,5 @@ function warmClose(row) {
 }
 
 export function register() {
-  Scenes.register('missions', () => missionScene(Scenes.top?.__params));
+  Scenes.register('missions', p => missionScene(p));
 }

@@ -18,7 +18,9 @@ export const Scenes = {
   make(name, params) {
     const f = registry.get(name);
     if (!f) throw new Error(`[scene] unknown scene "${name}"`);
-    const s = f();
+    // Params go to the factory. A factory must NOT read Scenes.top to find them —
+    // it runs before the new scene is pushed, so top is still the scene below.
+    const s = f(params);
     s.__name = name;
     if (s.pausesBelow === undefined) s.pausesBelow = true;
     if (s.drawsBelow === undefined) s.drawsBelow = false;

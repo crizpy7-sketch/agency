@@ -1,6 +1,6 @@
 {
   "tagline": "An original Pokemon-style overworld, collectible evolving Guardians, real-world family missions, and a village that visibly grows. Built against the FireRed/LeafGreen and Littlewood quality bar, and verified by driving the real game rather than reading its code.",
-  "cycle": 5,
+  "cycle": 6,
   "playUrl": "https://crizpy7-sketch.github.io/agency/hearth/",
   "playLabel": "crizpy7-sketch.github.io/agency/hearth",
   "build": {
@@ -54,9 +54,9 @@
     {
       "id": "ui",
       "name": "UI layer",
-      "status": "critique",
-      "note": "title, pause, party, summary, records shipped; dialogue still on the foundation fallback (works, but no portraits or designed frame)",
-      "round": 1
+      "status": "done",
+      "note": "designed dialogue with nameplates, portraits and speed control; HUD with clock/season/currency/party pips and a minimap; an original hearth-ember battle flourish; title, pause, party, summary, records",
+      "round": 3
     },
     {
       "id": "audio",
@@ -72,15 +72,22 @@
       "note": "27-check whole-experience pass, capture harness, this page"
     }
   ],
-  "loops": [
+  "loops": [],
+  "findings": [
+    {
+      "piece": "foundation",
+      "severity": "blocker",
+      "title": "Every scene had been reading the previous scene's params",
+      "detail": "Scene factories looked up Scenes.top.__params, but the factory runs before the new scene is pushed \u2014 so top was always the scene underneath. Latent since cycle 1 and invisible because most params were optional; it surfaced as a completely empty dialogue box. Params are now handed to the factory directly, and the contract says so.",
+      "status": "fixed"
+    },
     {
       "piece": "ui",
-      "stage": "critic",
-      "round": 2,
-      "note": "the last piece still on scaffolding: dialogue, HUD/minimap, and the battle transition"
-    }
-  ],
-  "findings": [
+      "severity": "major",
+      "title": "The battle transition flashed white twice",
+      "detail": "Two full-screen opaque white frames in quick succession is a photosensitivity risk. Replaced with a single partial-alpha wash, which reads just as sharply. Embers were also outrunning the frame before they were visible, so they were slowed.",
+      "status": "fixed"
+    },
     {
       "piece": "village",
       "severity": "major",
@@ -206,6 +213,13 @@
       "title": "Night lamps read as pale signboards",
       "detail": "Three wrong diagnoses before the right one: not the glow, not a fallback painter, not the lighting order. Rendering the tile on its own at 8x settled it \u2014 a wide rectangular head on a thin post reads as a signboard, and at night the bright pane made it a white block. Redrawn as a lantern: tapered body, peaked cap, a mullion and cross-bar splitting the glass into panes, hooked arm, footed post.",
       "status": "fixed"
+    },
+    {
+      "piece": "ui",
+      "severity": "minor",
+      "title": "No shared menu component",
+      "detail": "ui/menu.js was never written; every screen draws its own list. It works and is consistent, but a shared component would cut the duplication.",
+      "status": "open"
     }
   ],
   "comparisons": [
@@ -229,6 +243,11 @@
       "title": "Current build \u2014 full tour",
       "dir": "shots/tour",
       "note": "Driven through the real game with player inputs: title, overworld, pause, village board, mission board, party, battle, night."
+    },
+    {
+      "title": "The UI layer",
+      "dir": "shots/ui",
+      "note": "Dialogue with nameplate, portrait and typewriter; a choice prompt; the HUD over the world; and the hearth-ember battle flourish caught mid-way."
     },
     {
       "title": "Village transformation",
@@ -321,6 +340,11 @@
       "at": "cycle 5",
       "label": "The lamp, correctly diagnosed",
       "detail": "Closed the defect left open last cycle. The useful part was being wrong three times: each failed fix ruled out a cause, and rendering the tile alone at 8x on grass showed the real problem was the silhouette, not the lighting."
+    },
+    {
+      "at": "cycle 6",
+      "label": "The UI comes off scaffolding",
+      "detail": "Designed dialogue, HUD with minimap, and an original battle transition replace the foundation fallback. Building it exposed a blocker that had been latent since cycle 1: every scene was reading the previous scene's params."
     }
   ]
 }

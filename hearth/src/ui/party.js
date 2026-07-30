@@ -211,8 +211,8 @@ function dexScene() {
 }
 
 export function register() {
-  Scenes.register('party', () => partyScene(Scenes.top?.__params));
-  Scenes.register('summary', () => summaryScene(Scenes.top?.__params));
+  Scenes.register('party', p => partyScene(p));
+  Scenes.register('summary', p => summaryScene(p));
   Scenes.register('dex', () => dexScene());
 
   Hooks.install('party', {
