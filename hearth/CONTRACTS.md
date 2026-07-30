@@ -79,8 +79,8 @@ hearth/
 
 | Piece | Owner files |
 |---|---|
-| foundation | `index.html`, `main.js`, `state.js`, `core/**` |
-| art | `art/**` |
+| foundation | `index.html`, `main.js`, `state.js`, `core/**`, `dev/**`, **`art/names.js`** |
+| art | `art/**` except `names.js` |
 | world | `world/**` |
 | battle | `battle/**` |
 | village | `village/**`, `missions/**` |
@@ -204,6 +204,46 @@ Shape (grow it, never rename without a migration):
   missions:{active:[],done:[],streak,lastDay}, clock:{day,hour,minute,season},
   settings:{volume,muted,speed,scale} }
 ```
+
+### `art/names.js` — the canonical sprite registry (foundation-owned)
+
+Art paints these names; world/village/battle/ui reference them. **Neither side invents a
+name the other doesn't know.** It also pins the guardian roster, the character cast, and
+the building footprints so all four pieces can be built in parallel. Read it first.
+
+Autotiled families register `t.<fam>.m<0..15>`; mask bits are `1=N 2=E 4=S 8=W`, set when
+the neighbour is the same family. `m15` is the enclosed centre tile.
+
+### `ui/*` public API — consumers code against this before it exists
+
+```js
+// ui/textbox.js
+say(text, opts?) -> Promise<void>      // typewriter box; A advances; opts {speaker, portrait, sfx, speed}
+sayMany(lines, opts?) -> Promise<void>
+ask(text, choices, opts?) -> Promise<number>    // choices: string[]; returns index, -1 on cancel
+confirm(text) -> Promise<boolean>
+Textbox.busy -> bool
+// ui/frame.js
+Frame.panel(x, y, w, h, style?)        // style: 'paper'|'dark'|'gold'; draws the 9-slice
+Frame.bubble(x, y, w, h, tailX?)
+Frame.bar(x, y, w, value, max, colorSet)   // hp/xp bars with the pixel end-caps
+// ui/menu.js
+new Menu({ items, x, y, w, cols?, onPick, onCancel, onMove, render? })
+menu.update(); menu.render(); menu.index; menu.setItems(items)
+// ui/hud.js
+HUD.toast(text, { icon, ms })          // stacked, non-blocking
+HUD.drawOverworld()                    // clock, coins, hearth, party pips, minimap
+// ui/transition.js
+Transition.fade(dir, frames?) -> Promise      // dir: 'out'|'in'
+Transition.iris(dir, cx, cy) -> Promise
+Transition.battle() -> Promise                 // the pre-battle flourish
+Transition.doorway(dir) -> Promise
+Transition.active -> bool
+```
+
+**Text-on-panel convention:** on light paper panels draw text with `color: P.ink2` and
+`shadow: false` (or `shadow: P.paper0`). On dark panels use `color: P.ui0` with the default
+dark shadow. Light-on-light is the single most common readability bug — don't ship it.
 
 ## Quality bar (what critics judge against)
 
