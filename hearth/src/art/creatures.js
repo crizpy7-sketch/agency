@@ -172,32 +172,32 @@ function rockPlates(ctx, cx, cy, rx, ry, ramp) {
 // `mass` scales the whole creature; stage-2 and stage-3 forms are bigger and
 // carry an extra feature, so an evolution reads as growth rather than replacement.
 const SPEC = {
-  embercub:   { base: '#f08a3c', mass: 0.74, ears: 'fox', tail: 'flame', belly: '#ffdca8', eye: '#4fd0e8', legs: 4, mark: 'blaze' },
-  emberlynx:  { base: '#ef7a2a', mass: 0.90, ears: 'fox', tail: 'flame', belly: '#ffd39a', eye: '#4fd0e8', legs: 4, mark: 'blaze', mane: true },
-  pyrelion:   { base: '#e8641d', mass: 1.06, ears: 'fox', tail: 'flame', belly: '#ffcb86', eye: '#ffe066', legs: 4, mark: 'blaze', mane: true, crown: 'ember' },
+  embercub:   { shape: 'quad', base: '#f08a3c', mass: 0.74, ears: 'fox', tail: 'flame', belly: '#ffdca8', eye: '#4fd0e8', legs: 4, mark: 'blaze' },
+  emberlynx:  { shape: 'quad', base: '#ef7a2a', mass: 0.90, ears: 'fox', tail: 'flame', belly: '#ffd39a', eye: '#4fd0e8', legs: 4, mark: 'blaze', mane: true },
+  pyrelion:   { shape: 'quad', base: '#e8641d', mass: 1.06, ears: 'fox', tail: 'flame', belly: '#ffcb86', eye: '#ffe066', legs: 4, mark: 'blaze', mane: true, crown: 'ember' },
 
-  leafowl:    { base: '#7fc056', mass: 0.72, ears: 'owl', tail: 'leaf', belly: '#e2f0c0', eye: '#f5c020', legs: 2, wings: 'feather', beak: true },
-  grovewing:  { base: '#5ea23e', mass: 0.98, ears: 'owl', tail: 'leaf', belly: '#d6ecb2', eye: '#f5c020', legs: 2, wings: 'feather', beak: true, crown: 'leaf' },
+  leafowl:    { shape: 'bird', base: '#7fc056', mass: 0.72, ears: 'owl', tail: 'leaf', belly: '#e2f0c0', eye: '#f5c020', legs: 2, wings: 'feather', beak: true },
+  grovewing:  { shape: 'bird', base: '#5ea23e', mass: 0.98, ears: 'owl', tail: 'leaf', belly: '#d6ecb2', eye: '#f5c020', legs: 2, wings: 'feather', beak: true, crown: 'leaf' },
 
-  aquarabbit: { base: '#5fc2e8', mass: 0.72, ears: 'rabbit', tail: 'drop', belly: '#dff4fb', eye: '#2a6fa8', legs: 4, mark: 'splash' },
-  torrentide: { base: '#3f9fd4', mass: 1.0, ears: 'rabbit', tail: 'drop', belly: '#cfeaf8', eye: '#1d5b85', legs: 4, mark: 'splash', crown: 'wave' },
+  aquarabbit: { shape: 'quad', base: '#5fc2e8', mass: 0.72, ears: 'rabbit', tail: 'drop', belly: '#dff4fb', eye: '#2a6fa8', legs: 4, mark: 'splash' },
+  torrentide: { shape: 'quad', base: '#3f9fd4', mass: 1.0, ears: 'rabbit', tail: 'drop', belly: '#cfeaf8', eye: '#1d5b85', legs: 4, mark: 'splash', crown: 'wave' },
 
-  terranox:   { base: '#8f9b6a', mass: 0.80, ears: 'horn', tail: 'none', belly: '#d9d3a8', eye: '#f0d070', legs: 4, shell: true },
-  cragnox:    { base: '#7d8a5c', mass: 1.04, ears: 'horn', tail: 'none', belly: '#cfc79c', eye: '#f0d070', legs: 4, shell: true, crown: 'stone' },
+  terranox:   { shape: 'squat', base: '#8f9b6a', mass: 0.80, ears: 'horn', tail: 'none', belly: '#d9d3a8', eye: '#f0d070', legs: 4, shell: true },
+  cragnox:    { shape: 'squat', base: '#7d8a5c', mass: 1.04, ears: 'horn', tail: 'none', belly: '#cfc79c', eye: '#f0d070', legs: 4, shell: true, crown: 'stone' },
 
-  wisplet:    { base: '#dfeaf5', mass: 0.66, ears: 'fox', tail: 'wisp', belly: '#ffffff', eye: '#7fc7e8', legs: 0, wings: 'feather', float: true },
-  zephyrix:   { base: '#eef5fb', mass: 0.98, ears: 'fox', tail: 'wisp', belly: '#ffffff', eye: '#5aa8d8', legs: 0, wings: 'feather', float: true, serpent: true },
+  wisplet:    { shape: 'wisp', base: '#dfeaf5', mass: 0.66, ears: 'fox', tail: 'wisp', belly: '#ffffff', eye: '#7fc7e8', legs: 0, wings: 'feather', float: true },
+  zephyrix:   { shape: 'wisp', base: '#eef5fb', mass: 0.98, ears: 'fox', tail: 'wisp', belly: '#ffffff', eye: '#5aa8d8', legs: 0, wings: 'feather', float: true, serpent: true },
 
-  voltkit:    { base: '#f5d63f', mass: 0.72, ears: 'fox', tail: 'bolt', belly: '#fff3bb', eye: '#3b3222', legs: 4, mark: 'zag' },
-  voltmane:   { base: '#eec92c', mass: 1.0, ears: 'fox', tail: 'bolt', belly: '#fff0aa', eye: '#3b3222', legs: 4, mark: 'zag', mane: true },
+  voltkit:    { shape: 'quad', base: '#f5d63f', mass: 0.72, ears: 'fox', tail: 'bolt', belly: '#fff3bb', eye: '#3b3222', legs: 4, mark: 'zag' },
+  voltmane:   { shape: 'quad', base: '#eec92c', mass: 1.0, ears: 'fox', tail: 'bolt', belly: '#fff0aa', eye: '#3b3222', legs: 4, mark: 'zag', mane: true },
 
-  florabloom: { base: '#8fd07a', mass: 0.70, ears: 'none', tail: 'leaf', belly: '#e6f6d4', eye: '#2f6b3a', legs: 2, crown: 'petal' },
-  floradiant: { base: '#7ac167', mass: 0.96, ears: 'none', tail: 'leaf', belly: '#ddf2c8', eye: '#2f6b3a', legs: 2, crown: 'petal', wings: 'feather' },
+  florabloom: { shape: 'sprite', base: '#8fd07a', mass: 0.70, ears: 'none', tail: 'leaf', belly: '#e6f6d4', eye: '#2f6b3a', legs: 2, crown: 'petal' },
+  floradiant: { shape: 'sprite', base: '#7ac167', mass: 0.96, ears: 'none', tail: 'leaf', belly: '#ddf2c8', eye: '#2f6b3a', legs: 2, crown: 'petal', wings: 'feather' },
 
-  drakindle:  { base: '#e05a3a', mass: 0.80, ears: 'horn', tail: 'flame', belly: '#f7c98e', eye: '#ffd24a', legs: 2, wings: 'bat' },
-  drakember:  { base: '#cf4527', mass: 1.06, ears: 'horn', tail: 'flame', belly: '#f2bb7c', eye: '#ffd24a', legs: 2, wings: 'bat', crown: 'ember' },
+  drakindle:  { shape: 'drake', base: '#e05a3a', mass: 0.80, ears: 'horn', tail: 'flame', belly: '#f7c98e', eye: '#ffd24a', legs: 2, wings: 'bat' },
+  drakember:  { shape: 'drake', base: '#cf4527', mass: 1.06, ears: 'horn', tail: 'flame', belly: '#f2bb7c', eye: '#ffd24a', legs: 2, wings: 'bat', crown: 'ember' },
 
-  hearthling: { base: '#f5c877', mass: 0.78, ears: 'none', tail: 'flame', belly: '#fff0cc', eye: '#c0521a', legs: 0, float: true, crown: 'ember', glow: true },
+  hearthling: { shape: 'wisp', base: '#f5c877', mass: 0.78, ears: 'none', tail: 'flame', belly: '#fff0cc', eye: '#c0521a', legs: 0, float: true, crown: 'ember', glow: true },
 };
 
 // ---------------------------------------------------------------- the painter
@@ -209,12 +209,24 @@ function paintCreature(ctx, W, H, id, view) {
   const back = view === 'back';
   const M = s.mass * (W / 64);
 
+  // Silhouette is the first thing a player reads, so the archetype changes the
+  // actual proportions rather than just the decoration on top of one egg.
+  const FORM = {
+    quad:   { bx: 1.16, by: 0.82, hr: 0.92, neck: 0.42, lift: 2 },
+    bird:   { bx: 0.84, by: 1.00, hr: 1.08, neck: 0.20, lift: 2 },
+    squat:  { bx: 1.26, by: 0.70, hr: 0.86, neck: 0.24, lift: 1 },
+    wisp:   { bx: 0.74, by: 1.14, hr: 0.96, neck: 0.50, lift: 9 },
+    sprite: { bx: 0.72, by: 0.72, hr: 1.02, neck: 0.34, lift: 2 },
+    drake:  { bx: 0.92, by: 1.02, hr: 0.94, neck: 0.44, lift: 2 },
+  };
+  const f = FORM[s.shape] || FORM.quad;
+
   const cx = W / 2;
   const groundY = H - 6 * (W / 64);
-  const bodyRy = 13 * M, bodyRx = 15 * M;
-  const bodyCy = groundY - bodyRy - (s.float ? 8 * M : 2 * M);
-  const headR = 11 * M;
-  const headCy = bodyCy - bodyRy - headR * 0.55;
+  const bodyRx = 15 * M * f.bx, bodyRy = 13 * M * f.by;
+  const bodyCy = groundY - bodyRy - (s.float ? 8 * M : f.lift * M);
+  const headR = 11 * M * f.hr;
+  const headCy = bodyCy - bodyRy - headR * f.neck;
 
   // --- behind the body ---
   if (s.wings === 'feather') {
@@ -271,6 +283,23 @@ function paintCreature(ctx, W, H, id, view) {
     for (let i = 0; i < 3; i++) {
       ellipse(ctx, cx + (i - 1) * 5 * M, bodyCy + bodyRy * 0.5 + i * 2 * M, 6 * M, 3.4 * M, ramp[2]);
     }
+  }
+  // A wisp has no floor — it tapers into a tail instead of sitting on legs.
+  if (s.shape === 'wisp') {
+    for (let i = 0; i < 4; i++) {
+      const k = 1 - i / 4;
+      ellipse(ctx, cx + Math.sin(i * 1.1) * 3 * M, bodyCy + bodyRy * (0.8 + i * 0.34),
+        bodyRx * 0.52 * k, bodyRy * 0.26 * k, ramp[2 + (i % 2)]);
+    }
+  }
+  // A squat guardian is wider than it is tall and reads best with a heavy base.
+  if (s.shape === 'squat') {
+    ellipse(ctx, cx, bodyCy + bodyRy * 0.62, bodyRx * 0.92, bodyRy * 0.40, ramp[3]);
+  }
+  // A bird's chest is the shape you recognise it by.
+  if (s.shape === 'bird' && !back) {
+    ellipse(ctx, cx, bodyCy + bodyRy * 0.16, bodyRx * 0.62, bodyRy * 0.72, belly[1]);
+    ellipse(ctx, cx, bodyCy + bodyRy * 0.30, bodyRx * 0.44, bodyRy * 0.52, belly[0]);
   }
 
   // --- head ---
