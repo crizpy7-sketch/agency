@@ -122,19 +122,21 @@ async function run() {
     `dir=${p2.dir}, dx=${p2.x - p1.x}`);
 
   console.log('\n▶ save survives a reload');
+  // Note: village.level is derived from what is built, so it is deliberately not
+  // asserted here — writing it and reading it back would test nothing.
   await page.evaluate(() => {
     const S = window.__game.state;
     S.coins = 4242; S.hearth = 77; S.flags.__regress = true;
-    S.village.level = 3;
+    S.stats.steps = 321;
     window.__game.save();
   });
   await page.goto(base + '?autostart=1&nogate=1', { waitUntil: 'load' });
   await page.waitForFunction('window.__boot && window.__boot.ready', null, { timeout: 20000 });
   const after = await page.evaluate(() => {
     const S = window.__game.state;
-    return { coins: S.coins, hearth: S.hearth, flag: !!S.flags.__regress, vl: S.village.level };
+    return { coins: S.coins, hearth: S.hearth, flag: !!S.flags.__regress, steps: S.stats.steps };
   });
-  check('save/load round-trips', after.coins === 4242 && after.hearth === 77 && after.flag && after.vl === 3,
+  check('save/load round-trips', after.coins === 4242 && after.hearth === 77 && after.flag && after.steps === 321,
     JSON.stringify(after));
 
   console.log('\n▶ frame rate under load');
