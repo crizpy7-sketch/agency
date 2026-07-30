@@ -1,6 +1,6 @@
 {
   "tagline": "An original Pokemon-style overworld, collectible evolving Guardians, real-world family missions, and a village that visibly grows. Built against the FireRed/LeafGreen and Littlewood quality bar, and verified by driving the real game rather than reading its code.",
-  "cycle": 3,
+  "cycle": 4,
   "playUrl": "https://crizpy7-sketch.github.io/agency/hearth/",
   "playLabel": "crizpy7-sketch.github.io/agency/hearth",
   "build": {
@@ -41,8 +41,8 @@
       "id": "village",
       "name": "Village + build mode",
       "status": "done",
-      "note": "board with costs/locks/benefits, ghost placement, before/after upgrade card",
-      "round": 2
+      "note": "board with costs/locks/benefits, ghost placement, before/after upgrade card, and a verified level-1 to level-6 transformation",
+      "round": 3
     },
     {
       "id": "missions",
@@ -74,13 +74,33 @@
   ],
   "loops": [
     {
+      "piece": "village",
+      "stage": "critic",
+      "round": 3,
+      "note": "night lamps still draw through a fallback painter instead of the lit tile"
+    },
+    {
       "piece": "ui",
       "stage": "critic",
       "round": 2,
-      "note": "the dedicated textbox, HUD/minimap and battle-swirl transition are the last pieces still on the fallback"
+      "note": "dialogue, HUD and the battle transition are still on the foundation fallback"
     }
   ],
   "findings": [
+    {
+      "piece": "village",
+      "severity": "major",
+      "title": "The village paved everything it could see",
+      "detail": "Ground finishing at level 6 had a radius wider than the screen, and its outer band used near-white stones on dark grey in cold tones beside a warm sand plaza \u2014 it read as a missing-texture checkerboard. Radius cut below screen width, paving warmed and its value gap closed, and the outer fifth now dissolves into grass instead of stopping at a hard ring.",
+      "status": "fixed"
+    },
+    {
+      "piece": "world",
+      "severity": "minor",
+      "title": "Night light was applied in the wrong order",
+      "detail": "Additive lamp glow ran before the darkening tint, so it saturated bright tiles to white before the tint could touch them. Darken first, then punch light through \u2014 and pool it on the ground below a lamp rather than on the fitting.",
+      "status": "fixed"
+    },
     {
       "piece": "audio",
       "severity": "major",
@@ -185,22 +205,29 @@
       "title": "Some evolutions are too close in colour",
       "detail": "Aquarabbit and Torrentide read as the same blue at a glance; the mass change carries the evolution but the palette does not help.",
       "status": "open"
+    },
+    {
+      "piece": "village",
+      "severity": "major",
+      "title": "Night lamps render as pale blocks",
+      "detail": "The village draws its own decor lamps through a fallback painter rather than the t.lamp.lit tile, so fixing the tile art had no effect on them. Isolated to paintDecor/decorFallback in village.js; next cycle's first job.",
+      "status": "open"
     }
   ],
   "comparisons": [
     {
-      "title": "Village at level 1 vs the same ground after building",
+      "title": "The same ground at village level 1 and level 6",
       "a": {
-        "dir": "shots/village",
-        "label": "board: what to build, what it costs, why it is locked",
-        "pick": "village"
+        "dir": "shots/transformation",
+        "label": "level 1 \u2014 the Hearthstone and not much else",
+        "pick": "before"
       },
       "b": {
-        "dir": "shots/village",
-        "label": "after placement",
-        "pick": "placed"
+        "dir": "shots/transformation",
+        "label": "level 6 \u2014 eleven buildings at top tier",
+        "pick": "after-level"
       },
-      "verdict": "Costs, locks with reasons, and per-tier previews are in place. The visible-transformation pass across a level-1 to level-6 village is the next comparison to run."
+      "verdict": "The transformation is unmistakable: paved plaza, banners, lamps, benches, planters, a market stall, and villagers who moved in. Running this pair is also what exposed the paving defect \u2014 the first version covered every tile in view."
     }
   ],
   "galleries": [
@@ -208,6 +235,11 @@
       "title": "Current build \u2014 full tour",
       "dir": "shots/tour",
       "note": "Driven through the real game with player inputs: title, overworld, pause, village board, mission board, party, battle, night."
+    },
+    {
+      "title": "Village transformation",
+      "dir": "shots/transformation",
+      "note": "Level 1, level 6, the built-out village after dark, and in autumn. The pale blocks at the lamps after dark are a known open defect."
     },
     {
       "title": "Exploration",
@@ -285,6 +317,11 @@
       "at": "cycle 3",
       "label": "Grass, silhouettes, and a score",
       "detail": "Closed the two biggest open findings: the flat grass plane and the shared Guardian silhouette. Wrote the game's music from scratch \u2014 it had been entirely silent. Regression grew to 29 checks."
+    },
+    {
+      "at": "cycle 4",
+      "label": "The village earns its claim",
+      "detail": "Built an A/B that takes the same ground from level 1 to level 6 and shoots both from the same camera. The transformation is unmistakable \u2014 and running it caught the village paving every visible tile in a cold grey checkerboard, plus night light being composited in the wrong order."
     }
   ]
 }

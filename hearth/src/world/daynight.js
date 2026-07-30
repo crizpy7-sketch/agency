@@ -105,16 +105,21 @@ export function drawWeather() {
 /** Warm pools of light under lit lamps and windows once the sun is down. */
 export function drawNightGlow(map, cam) {
   if (!isNight() || map?.indoor) return;
-  const a = S.clock.hour >= 21 || S.clock.hour < 5 ? 0.5 : 0.34;
+  // Deliberately gentle. A lamp should pool warmth on the ground, not bleach
+  // whatever is standing under it.
+  const deep = S.clock.hour >= 21 || S.clock.hour < 5;
+  const a = deep ? 0.20 : 0.13;
   for (const p of map.findTag('lamp')) {
-    const x = p.x * 16 + 8 - cam.x, y = p.y * 16 + 4 - cam.y;
-    if (x < -40 || y < -40 || x > R.W + 40 || y > R.H + 40) continue;
-    R.glow(x, y, 34, `rgba(255,214,140,${a})`, 0.85);
+    // Pool the light on the ground BELOW the lamp, wide and soft. Centring a tight,
+    // strong glow on the fitting itself just blows the fitting out to white.
+    const x = p.x * 16 + 8 - cam.x, y = p.y * 16 + 18 - cam.y;
+    if (x < -50 || y < -50 || x > R.W + 50 || y > R.H + 50) continue;
+    R.glow(x, y, 38, `rgba(255,204,128,${a})`, 0.5);
   }
   for (const st of map.structures || []) {
     const x = (st.x + st.w / 2) * 16 - cam.x, y = (st.y - st.overhang / 2) * 16 - cam.y;
     if (x < -60 || y < -60 || x > R.W + 60 || y > R.H + 60) continue;
-    R.glow(x, y, 26, 'rgba(255,196,110,0.42)', 0.8);
+    R.glow(x, y, 22, 'rgba(255,190,104,0.26)', 0.5);
   }
 }
 

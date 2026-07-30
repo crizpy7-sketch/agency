@@ -239,7 +239,9 @@ function buildSolids() {
 
 // Radius of finished ground, by village level. This one array is the single most
 // visible expression of progress in the whole game.
-const FINISH_R = [0, 2.6, 4.4, 6.6, 9.0, 11.6, 14.4, 17.0, 19.6, 22.0];
+// Deliberately smaller than the screen even at max level: a village that has paved
+// every tile in view has stopped reading as a village in a landscape.
+const FINISH_R = [0, 2.2, 3.4, 4.6, 5.8, 7.0, 8.2, 9.4, 10.6, 11.6];
 
 function finishRadius(lv) { return FINISH_R[clamp(lv, 0, MAX_LEVEL)] || 0; }
 
@@ -258,7 +260,11 @@ function buildFinish(map) {
       const d = Math.hypot((x - c.x) * 0.72, (y - c.y) * 1.0);
       // A soft, hashed edge so the boundary never looks like a compass circle.
       const wobble = (hash2(x, y, 11) - 0.5) * 1.4;
-      if (d + wobble > r) continue;
+      const edge = (d + wobble) / r;
+      if (edge > 1) continue;
+      // The outer fifth dissolves into the grass instead of stopping at a hard ring,
+      // so the village looks like it grew outward rather than being stamped on.
+      if (edge > 0.78 && hash2(x, y, 29) < (edge - 0.78) / 0.22 * 0.9) continue;
       if (baseSolid(map, x, y)) continue;
       let mat;
       if (lv >= 3 && d < r * 0.42) mat = 'plaza';

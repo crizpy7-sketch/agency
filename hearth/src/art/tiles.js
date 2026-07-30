@@ -858,8 +858,10 @@ TP['t.lamp.lit'] = (ctx, w, h, f) => {
   px(ctx, 6, 3 + (f ? 0 : 1), P.gold0, 4, 2 - (f ? 0 : 1));
   px(ctx, 7, 4, P.white, 2, 1);
   px(ctx, 6, 0, P.rock3, 4, 2); px(ctx, 6, 0, P.rock1, 4, 1);
-  ctx.globalAlpha = f ? 0.20 : 0.14;
-  ellipse(ctx, 8, 5, 8, 7, P.gold0);
+  // No halo baked into the tile: a gold wash across the whole 16x16 reads as a pale
+  // block at night. The world draws the real radial pool via R.glow instead.
+  ctx.globalAlpha = f ? 0.16 : 0.10;
+  ellipse(ctx, 8, 4.5, 4.5, 4, P.gold0);
   ctx.globalAlpha = 0.26; ellipse(ctx, 8, 15, 5, 1.3, '#221a2a'); ctx.globalAlpha = 1;
 };
 TP['t.well'] = ctx => {
@@ -1340,20 +1342,27 @@ TP['t.plaza.edge'] = ctx => {
   for (let x = 0; x < 16; x += 4) px(ctx, x, 14, P.sand2, 1, 2);
 };
 TP['t.cobble'] = ctx => {
-  px(ctx, 0, 0, P.rock3, 16, 16);
+  // Warm stone, not cold grey, and only one step of value between the mortar and the
+  // stones. A near-white stone on a dark base reads as static, and cold grey fights
+  // the sand plaza it sits beside.
+  const mortar = mix(P.rock2, P.sand3, 0.55);
+  const stone = mix(P.rock1, P.sand2, 0.55);
+  const lit = mix(P.rock0, P.sand1, 0.5);
+  px(ctx, 0, 0, mortar, 16, 16);
   for (let r = 0; r < 4; r++) {
     const y = r * 4, off = r % 2 ? -2 : 0;
     for (let x = off; x < 16; x += 5) {
       ellipse(ctx, x + 2, y + 1.5, 2.4, 1.8, (px_, py, dx, dy, d) =>
-        d > 0.8 ? P.rock3 : (dx + dy < -0.2 ? P.rock0 : P.rock1));
+        d > 0.85 ? mortar : (dx + dy < -0.3 ? lit : stone));
     }
   }
 };
 TP['t.gravel'] = ctx => {
-  px(ctx, 0, 0, mix(P.rock1, P.sand2, 0.4), 16, 16);
+  // The outermost village finish. It sits directly against grass, so it stays quiet.
+  px(ctx, 0, 0, mix(P.sand2, P.rock1, 0.35), 16, 16);
   for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
     const n = hash(x, y, 211);
-    if (n > 0.86) px(ctx, x, y, P.rock0);
+    if (n > 0.92) px(ctx, x, y, P.sand1);
     else if (n < 0.16) px(ctx, x, y, P.rock2);
   }
   for (const [x, y] of [[3, 4], [10, 9], [6, 13]]) { px(ctx, x, y, P.rock0, 2, 1); px(ctx, x, y + 1, P.rock3, 2, 1); }

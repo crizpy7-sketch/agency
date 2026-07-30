@@ -101,7 +101,8 @@ export function tintFor(hour, season = 'spring', weather = 'clear') {
   else if (h >= 8 && h < 17) { color = NOON; alpha = 0.06; mode = 'soft-light'; }
   else if (h >= 17 && h < 19) { color = '#ffb46b'; alpha = lerpA(0.10, 0.30, (h - 17) / 2); mode = 'soft-light'; }
   else if (h >= 19 && h < 21) { color = DUSK; alpha = lerpA(0.24, 0.48, (h - 19) / 2); }
-  else { color = NIGHT; alpha = 0.55; }
+  else if (h >= 21 || h < 4) { color = NIGHT; alpha = 0.70; }   // the small hours
+  else { color = NIGHT; alpha = 0.58; }
 
   if (season === 'autumn') { if (mode === 'multiply') color = mix(color, '#c98a4a', 0.25); }
   if (season === 'winter') { alpha = Math.min(0.7, alpha + 0.06); color = mix(color, '#cfe6ff', 0.22); }

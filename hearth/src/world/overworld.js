@@ -427,8 +427,11 @@ function render() {
   drawPlayer(cam);
 
   R.layer(LAYER.WEATHER, () => {
-    drawNightGlow(map, cam);
+    // Darken first, then punch the warm light through it. The other order lets an
+    // additive glow saturate bright tiles to white before the tint can touch them,
+    // which turned every bench near a lamp into a white rectangle after dark.
     drawLighting(map);
+    drawNightGlow(map, cam);
     drawWeather();
   });
 
