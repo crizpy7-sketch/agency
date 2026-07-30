@@ -132,7 +132,9 @@ const run = async () => {
       const el = await page.$('#screen');
       const file = join(OUT, label + '.png');
       await el.screenshot({ path: file });
-      if (opts.native) {
+      // Always keep the raw 320x180 canvas too: it's a few KB, it's what pixel diffs
+      // need, and it's small enough to embed in the progress page.
+      if (opts.native !== false) {
         const data = await page.evaluate(() => document.getElementById('screen').toDataURL());
         await writeFile(join(OUT, label + '.native.png'), Buffer.from(data.split(',')[1], 'base64'));
       }

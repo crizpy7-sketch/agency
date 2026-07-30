@@ -1,0 +1,34 @@
+{
+  "tagline": "An original Pokemon-style overworld, collectible evolving Guardians, real-world family missions, and a village that visibly grows. Built and judged in adversarial builder/critic loops against the FireRed/LeafGreen and Littlewood quality bar.",
+  "cycle": 1,
+  "playUrl": "https://crizpy7-sketch.github.io/agency/hearth/",
+  "playLabel": "crizpy7-sketch.github.io/agency/hearth",
+  "build": { "commit": "pending", "at": "", "fps": 0, "errors": 0 },
+  "pieces": [
+    { "id": "foundation", "name": "Engine foundation", "status": "done", "note": "fixed-timestep loop, layered pixel renderer, input, scenes, audio, save, pixel font, hook bridge" },
+    { "id": "art", "name": "Art system", "status": "building", "note": "tiles + autotiles, characters, 18 guardians, buildings, effects, UI chrome", "round": 1 },
+    { "id": "world", "name": "Overworld", "status": "building", "note": "maps, collision, NPCs, interiors, day/night/seasons, encounters", "round": 1 },
+    { "id": "battle", "name": "Battle + Guardians", "status": "building", "note": "pure engine, 18 species, bonding, evolution, battle scene", "round": 1 },
+    { "id": "village", "name": "Village + Missions", "status": "building", "note": "build mode, upgrade cards, visible transformation, family missions", "round": 1 },
+    { "id": "ui", "name": "UI layer", "status": "building", "note": "typewriter dialogue, menus, HUD, transitions, party, title", "round": 1 },
+    { "id": "harness", "name": "Progress page + regression", "status": "building", "note": "this page, plus the whole-experience capture pass", "round": 1 }
+  ],
+  "loops": [
+    { "piece": "art", "stage": "builder", "round": 1, "note": "fresh-context builder painting the full atlas" },
+    { "piece": "world", "stage": "builder", "round": 1, "note": "fresh-context builder on movement feel and map region" },
+    { "piece": "battle", "stage": "builder", "round": 1, "note": "fresh-context builder on engine + presentation" },
+    { "piece": "village", "stage": "builder", "round": 1, "note": "fresh-context builder on build flow and missions" },
+    { "piece": "ui", "stage": "builder", "round": 1, "note": "fresh-context builder on text and menu feel" }
+  ],
+  "findings": [],
+  "comparisons": [],
+  "galleries": [
+    { "title": "Current build", "dir": "shots/tour", "note": "Every entry point, captured by driving the real game through player inputs. Placeholder panels are the pieces still in flight." }
+  ],
+  "timeline": [
+    { "at": "cycle 1", "label": "Foundation landed", "detail": "Zero-build ES-module engine: 60Hz fixed timestep, 320x180 layered renderer with y-sorted entities, edge-buffered input across keyboard/gamepad/touch, scene stack, procedural audio sequencer, save with migrations, and a hand-built pixel font." },
+    { "at": "cycle 1", "label": "Contracts pinned", "detail": "CONTRACTS.md fixed module ownership and the quality bar; art/names.js pinned every sprite name, the 18-guardian roster, the cast, and building footprints; core/bridge.js gave every cross-piece call a late-bound safe default." },
+    { "at": "cycle 1", "label": "Capture harness online", "detail": "tools/shoot.mjs drives the real game through player inputs and records screenshots, scene state, fps, and console errors. Full tour passes at 58fps with zero errors." },
+    { "at": "cycle 1", "label": "Five builders fanned out", "detail": "Art, overworld, battle, village+missions, and UI each handed to a fresh-context builder with disjoint file ownership." }
+  ]
+}
