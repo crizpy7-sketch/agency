@@ -11,7 +11,19 @@ import { mkdir, writeFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { spawn } from 'node:child_process';
-import { SCENARIOS } from './scenarios.mjs';
+import { SCENARIOS as BASE } from './scenarios.mjs';
+import { readdir } from 'node:fs/promises';
+
+// Each piece owns tools/scenarios/<piece>.mjs so five builders never edit one file.
+const SCENARIOS = { ...BASE };
+try {
+  const dir = new URL('./scenarios/', import.meta.url);
+  for (const f of await readdir(dir)) {
+    if (!f.endsWith('.mjs')) continue;
+    const m = await import(new URL(f, dir));
+    Object.assign(SCENARIOS, m.SCENARIOS || {});
+  }
+} catch { /* no per-piece scenarios yet */ }
 
 const args = process.argv.slice(2);
 const flag = (name, def) => {

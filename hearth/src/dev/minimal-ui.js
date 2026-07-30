@@ -96,12 +96,12 @@ function fadeScene(dir, frames, onDone) {
 }
 
 export function installMinimalUI() {
-  if (UIx.installed) return false;
+  if (UIx.real) return false;
   globalThis.__R = R;
   Scenes.register('__textbox', () => textboxScene(Scenes.top?.__params || {}));
 
+  // real:false keeps this replaceable by ui/textbox.js when that lands.
   UIx.install({
-    installed: false,     // stay replaceable by the real UI
     get busy() { return busy; },
     async say(text, opts = {}) {
       busy = true;
@@ -127,7 +127,7 @@ export function installMinimalUI() {
     async doorway(dir) { return UIx.fade(dir, 12); },
     panel,
     drawToasts,
-  });
+  }, { real: false });
   return true;
 }
 

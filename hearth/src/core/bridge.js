@@ -9,7 +9,8 @@
 // ---- UI facade -------------------------------------------------------------------
 // ui/textbox.js, ui/hud.js and ui/transition.js replace these via UIx.install().
 export const UIx = {
-  installed: false,
+  /** True once the real ui/* modules have installed (minimal-ui leaves it false). */
+  real: false,
 
   /** Typewriter dialogue box. Resolves when the player has read it through. */
   async say(text, opts) { console.info('[say]', text); },
@@ -30,7 +31,15 @@ export const UIx = {
   /** Nine-slice panel. Fallback draws a plain readable box. */
   panel(x, y, w, h, style) { fallbackPanel(x, y, w, h, style); },
 
-  install(impl) { Object.assign(UIx, impl); UIx.installed = true; },
+  // Copies property *descriptors*, so an implementation may supply getters
+  // (e.g. `get busy()`) over the facade's own getters. Object.assign cannot.
+  install(impl, { real = true } = {}) {
+    for (const k of Reflect.ownKeys(impl)) {
+      if (k === 'real') continue;
+      Object.defineProperty(UIx, k, Object.getOwnPropertyDescriptor(impl, k));
+    }
+    if (real) UIx.real = true;
+  },
 };
 
 // ---- cross-piece hooks -----------------------------------------------------------
@@ -88,7 +97,9 @@ export const Hooks = {
 
   install(slot, impl) {
     if (!this[slot]) throw new Error(`[bridge] unknown hook slot "${slot}"`);
-    Object.assign(this[slot], impl);
+    for (const k of Reflect.ownKeys(impl)) {
+      Object.defineProperty(this[slot], k, Object.getOwnPropertyDescriptor(impl, k));
+    }
     installed.add(slot);
   },
 

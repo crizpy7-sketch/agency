@@ -1,0 +1,3 @@
+Per-piece capture scenarios live here as <piece>.mjs exporting `SCENARIOS`.
+shoot.mjs merges every file in this directory over tools/scenarios.mjs.
+Each builder owns exactly one file so parallel work never conflicts.

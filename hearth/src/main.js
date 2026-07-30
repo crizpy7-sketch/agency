@@ -38,6 +38,8 @@ async function soft(path, label) {
 }
 
 export async function boot({ veil, startBtn, setBoot }) {
+  // Exposed first so the harness can still drive and inspect a build that fails to boot.
+  window.__frames = frameWait;
   setBoot('lighting the font…', 6);
   const canvas = document.getElementById('screen');
   R.init(canvas);
