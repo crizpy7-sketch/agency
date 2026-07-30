@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#12161f">
+<title>Guardians of the Hearth</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#0b0e14; }
+  body {
+    display:flex; align-items:center; justify-content:center;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    touch-action:none; user-select:none; -webkit-user-select:none;
+  }
+  #stage { position:relative; image-rendering:pixelated; }
+  #screen {
+    display:block; image-rendering:pixelated; image-rendering:crisp-edges;
+    background:#0b0e14; box-shadow:0 0 0 1px #000, 0 24px 60px -20px #000;
+  }
+  /* ---- boot veil ---- */
+  #veil {
+    position:fixed; inset:0; z-index:50; background:#0b0e14; color:#e8dfc8;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+    transition:opacity .45s ease; font-size:13px; letter-spacing:.14em; text-transform:uppercase;
+  }
+  #veil.gone { opacity:0; pointer-events:none; }
+  #veil .mark { font-size:20px; letter-spacing:.3em; color:#f5c877; text-shadow:0 2px 0 #7a4a1c; }
+  #bar { width:180px; height:4px; background:#232a38; overflow:hidden; }
+  #bar i { display:block; height:100%; width:0%; background:#f5c877; transition:width .2s ease; }
+  #veil .hint { color:#7d8899; font-size:11px; letter-spacing:.1em; }
+  #veil button {
+    font:inherit; font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    padding:12px 26px; color:#12161f; background:#f5c877; border:0; cursor:pointer;
+    box-shadow:0 3px 0 #a9762a;
+  }
+  #veil button:active { transform:translateY(2px); box-shadow:0 1px 0 #a9762a; }
+  /* ---- touch controls (shown only for touch devices) ---- */
+  #touch { position:fixed; inset:0; z-index:40; display:none; pointer-events:none; }
+  body.touch #touch { display:block; }
+  #touch .pad, #touch .btn {
+    position:absolute; pointer-events:auto; border-radius:50%;
+    background:rgba(232,223,200,.10); border:1px solid rgba(232,223,200,.22);
+    backdrop-filter:blur(2px);
+  }
+  #touch .pad { left:max(14px,env(safe-area-inset-left)); bottom:max(18px,env(safe-area-inset-bottom));
+    width:132px; height:132px; }
+  #touch .pad i { position:absolute; inset:0; margin:auto; width:34px; height:34px; border-radius:50%;
+    background:rgba(245,200,119,.5); transition:transform .06s linear; }
+  #touch .btn { width:62px; height:62px; right:max(16px,env(safe-area-inset-right));
+    display:grid; place-items:center; color:#f5c877; font-size:15px; letter-spacing:.06em; }
+  #touch .btn.a { bottom:max(74px,calc(env(safe-area-inset-bottom) + 62px)); }
+  #touch .btn.b { bottom:max(16px,env(safe-area-inset-bottom)); right:max(86px,calc(env(safe-area-inset-right) + 70px)); }
+  #touch .btn.m { top:max(16px,env(safe-area-inset-top)); width:46px; height:46px; font-size:12px; }
+  #touch .btn:active, #touch .btn.on { background:rgba(245,200,119,.32); }
+  /* ---- crash panel ---- */
+  #crash { position:fixed; inset:0; z-index:60; display:none; background:#160f14; color:#ffb4b4;
+    padding:24px; font-size:12px; line-height:1.6; overflow:auto; white-space:pre-wrap; }
+  #crash.on { display:block; }
+  #crash h1 { font-size:14px; color:#ff8080; margin-bottom:10px; letter-spacing:.1em; }
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="screen" width="320" height="180"></canvas></div>
+
+  <div id="touch" aria-hidden="true">
+    <div class="pad" id="tpad"><i></i></div>
+    <div class="btn a" id="tA">A</div>
+    <div class="btn b" id="tB">B</div>
+    <div class="btn m" id="tM">☰</div>
+  </div>
+
+  <div id="veil">
+    <div class="mark">GUARDIANS OF THE HEARTH</div>
+    <div id="bar"><i></i></div>
+    <div class="hint" id="veilHint">warming the hearth…</div>
+    <button id="startBtn" hidden>Press to begin</button>
+  </div>
+
+  <div id="crash"><h1>The hearth went cold.</h1><div id="crashBody"></div></div>
+
+<script type="module">
+  const veil = document.getElementById('veil');
+  const bar = document.querySelector('#bar i');
+  const hint = document.getElementById('veilHint');
+  const startBtn = document.getElementById('startBtn');
+  const crash = document.getElementById('crash');
+  const crashBody = document.getElementById('crashBody');
+
+  // Boot progress is readable by tests: window.__boot
+  window.__boot = { step:'init', pct:0, ready:false, error:null };
+  window.__setBoot = (step, pct) => {
+    window.__boot.step = step; window.__boot.pct = pct;
+    bar.style.width = pct + '%'; hint.textContent = step;
+  };
+
+  function fail(err) {
+    window.__boot.error = String(err && err.stack || err);
+    crash.classList.add('on');
+    crashBody.textContent = window.__boot.error;
+    veil.classList.add('gone');
+  }
+  window.addEventListener('error', e => fail(e.error || e.message));
+  window.addEventListener('unhandledrejection', e => fail(e.reason));
+
+  if (matchMedia('(hover: none) and (pointer: coarse)').matches) document.body.classList.add('touch');
+
+  try {
+    const { boot } = await import('./src/main.js');
+    await boot({ veil, startBtn, setBoot: window.__setBoot });
+  } catch (err) { fail(err); }
+</script>
+</body>
+</html>
