@@ -1,6 +1,6 @@
 {
   "tagline": "An original Pokemon-style overworld, collectible evolving Guardians, real-world family missions, and a village that visibly grows. Built against the FireRed/LeafGreen and Littlewood quality bar, and verified by driving the real game rather than reading its code.",
-  "cycle": 4,
+  "cycle": 5,
   "playUrl": "https://crizpy7-sketch.github.io/agency/hearth/",
   "playLabel": "crizpy7-sketch.github.io/agency/hearth",
   "build": {
@@ -74,16 +74,10 @@
   ],
   "loops": [
     {
-      "piece": "village",
-      "stage": "critic",
-      "round": 3,
-      "note": "night lamps still draw through a fallback painter instead of the lit tile"
-    },
-    {
       "piece": "ui",
       "stage": "critic",
       "round": 2,
-      "note": "dialogue, HUD and the battle transition are still on the foundation fallback"
+      "note": "the last piece still on scaffolding: dialogue, HUD/minimap, and the battle transition"
     }
   ],
   "findings": [
@@ -209,9 +203,9 @@
     {
       "piece": "village",
       "severity": "major",
-      "title": "Night lamps render as pale blocks",
-      "detail": "The village draws its own decor lamps through a fallback painter rather than the t.lamp.lit tile, so fixing the tile art had no effect on them. Isolated to paintDecor/decorFallback in village.js; next cycle's first job.",
-      "status": "open"
+      "title": "Night lamps read as pale signboards",
+      "detail": "Three wrong diagnoses before the right one: not the glow, not a fallback painter, not the lighting order. Rendering the tile on its own at 8x settled it \u2014 a wide rectangular head on a thin post reads as a signboard, and at night the bright pane made it a white block. Redrawn as a lantern: tapered body, peaked cap, a mullion and cross-bar splitting the glass into panes, hooked arm, footed post.",
+      "status": "fixed"
     }
   ],
   "comparisons": [
@@ -322,6 +316,11 @@
       "at": "cycle 4",
       "label": "The village earns its claim",
       "detail": "Built an A/B that takes the same ground from level 1 to level 6 and shoots both from the same camera. The transformation is unmistakable \u2014 and running it caught the village paving every visible tile in a cold grey checkerboard, plus night light being composited in the wrong order."
+    },
+    {
+      "at": "cycle 5",
+      "label": "The lamp, correctly diagnosed",
+      "detail": "Closed the defect left open last cycle. The useful part was being wrong three times: each failed fix ruled out a cause, and rendering the tile alone at 8x on grass showed the real problem was the silhouette, not the lighting."
     }
   ]
 }

@@ -844,26 +844,45 @@ function lampPost(ctx) {
   px(ctx, 5, 14, P.rock3, 6, 1); px(ctx, 5, 13, P.rock2, 6, 1);
   px(ctx, 5, 2, P.rock3, 6, 1);
 }
-TP['t.lamp'] = ctx => {
-  lampPost(ctx);
-  panelBox(ctx, 4, 2, 8, 5, [P.rock1, P.rock2, P.rock3, P.rock4]);
-  px(ctx, 5, 3, mix(P.rock1, GLASS[2], 0.6), 6, 3);
-  px(ctx, 6, 0, P.rock3, 4, 2); px(ctx, 6, 0, P.rock1, 4, 1);
+// A lamp has to read as a lamp at 16px. A wide rectangular head on a thin post
+// reads as a signboard or a screen — which is exactly how the first version looked
+// in the village. A lantern needs a narrow tapered body, a peaked cap, a visible
+// mullion splitting the glass, and a hooked arm.
+function lantern(ctx, glass, glow) {
+  // post and footing
+  px(ctx, 8, 8, P.rock3, 1, 7);
+  px(ctx, 7, 8, P.rock2, 1, 7);
+  px(ctx, 6, 15, P.rock3, 4, 1);
+  px(ctx, 6, 14, P.rock2, 4, 1);
+  // hooked arm over to the lantern
+  px(ctx, 7, 4, P.rock2, 1, 4);
+  // peaked cap
+  px(ctx, 7, 0, P.rock3, 2, 1);
+  px(ctx, 6, 1, P.rock2, 4, 1);
+  px(ctx, 5, 2, P.rock3, 6, 1);
+  px(ctx, 5, 2, P.rock1, 5, 1);
+  // tapered lantern body
+  px(ctx, 5, 3, P.rock3, 6, 5);
+  px(ctx, 6, 3, glass, 4, 4);
+  // mullion + a cross-bar, so it reads as panes of glass rather than a panel
+  px(ctx, 8, 3, P.rock3, 1, 4);
+  px(ctx, 6, 5, P.rock3, 4, 1);
+  // base of the lantern
+  px(ctx, 5, 7, P.rock2, 6, 1);
+  px(ctx, 6, 8, P.rock3, 4, 1);
+  if (glow) {
+    px(ctx, 6, 3, P.gold0, 2, 2);
+    px(ctx, 9, 6, P.gold0, 1, 1);
+    ctx.globalAlpha = 0.16;
+    ellipse(ctx, 8, 5, 5, 5, P.gold0);
+    ctx.globalAlpha = 1;
+  }
   ctx.globalAlpha = 0.26; ellipse(ctx, 8, 15, 5, 1.3, '#221a2a'); ctx.globalAlpha = 1;
-};
-TP['t.lamp.lit'] = (ctx, w, h, f) => {
-  lampPost(ctx);
-  panelBox(ctx, 4, 2, 8, 5, [P.rock1, P.rock2, P.rock3, P.rock4]);
-  px(ctx, 5, 3, P.gold1, 6, 3);
-  px(ctx, 6, 3 + (f ? 0 : 1), P.gold0, 4, 2 - (f ? 0 : 1));
-  px(ctx, 7, 4, P.white, 2, 1);
-  px(ctx, 6, 0, P.rock3, 4, 2); px(ctx, 6, 0, P.rock1, 4, 1);
-  // No halo baked into the tile: a gold wash across the whole 16x16 reads as a pale
-  // block at night. The world draws the real radial pool via R.glow instead.
-  ctx.globalAlpha = f ? 0.16 : 0.10;
-  ellipse(ctx, 8, 4.5, 4.5, 4, P.gold0);
-  ctx.globalAlpha = 0.26; ellipse(ctx, 8, 15, 5, 1.3, '#221a2a'); ctx.globalAlpha = 1;
-};
+}
+
+TP['t.lamp'] = ctx => lantern(ctx, mix(P.rock1, GLASS[2], 0.55), false);
+TP['t.lamp.lit'] = (ctx, w, h, f) => lantern(ctx, f ? P.gold1 : P.gold0, true);
+
 TP['t.well'] = ctx => {
   px(ctx, 2, 7, P.rock2, 12, 8);
   px(ctx, 2, 7, P.rock1, 12, 2);
