@@ -150,24 +150,56 @@ const GD = mix(P.grass1, P.grass2, 0.55);
 const GDD = mix(P.grass1, P.grass2, 0.85);
 
 function grassBase(ctx, v = 0) {
-  px(ctx, 0, 0, P.grass1, 16, 16);
+  // The base sits a step DARKER than the blades, so the blades read as blades.
+  // Single-pixel noise on a flat fill is invisible at 16px — it just looks like a
+  // solid green slab, which is what a large field then reads as.
+  px(ctx, 0, 0, P.grass2, 16, 16);
   const seed = 11 + v * 37;
+
+  // Broad mottling in 2x2 blocks. Blocks are the smallest unit the eye reliably
+  // resolves at this tile size; per-pixel noise averages back out to flat.
   for (let y = 0; y < 16; y++) {
     for (let x = 0; x < 16; x++) {
-      const n = hash(x, y, seed);
-      if (n > 0.972) px(ctx, x, y, GL);
-      else if (n < 0.030) px(ctx, x, y, GD);
+      const n = hash(x >> 1, y >> 1, seed);
+      if (n > 0.82) px(ctx, x, y, P.grass1);
+      else if (n < 0.10) px(ctx, x, y, P.grass3);
     }
   }
-  // three short blades and two light flecks, positions rotate per variant
-  const spots = [[2, 5], [9, 3], [5, 11], [12, 8], [7, 14], [14, 13], [1, 9], [11, 12]];
-  for (let i = 0; i < 3; i++) {
-    const [bx, by] = spots[(i * 3 + v) % spots.length];
-    px(ctx, bx, by, GD); px(ctx, bx, by + 1, GDD);
+  // A sparse offset pass breaks up the 2x2 grid so it never reads as a checkerboard.
+  // Kept light: walkable ground must stay calmer than anything standing on it, or
+  // the field competes with the path and the player for attention.
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      if (hash(x, y, seed + 91) > 0.955) px(ctx, x, y, P.grass0);
+    }
   }
-  for (let i = 0; i < 2; i++) {
-    const [bx, by] = spots[(i * 5 + v + 4) % spots.length];
-    px(ctx, bx, by, GL, 2, 1);
+
+  // Blade clusters — the actual "this is grass" signal. Seven per tile, rotated per
+  // variant, kept off the tile edges so four variants can sit side by side without
+  // seams or repeated silhouettes.
+  const spots = [
+    [3, 6], [10, 4], [6, 12], [13, 9], [8, 15], [2, 13], [14, 14],
+    [5, 3], [11, 11], [1, 8], [7, 8], [12, 2],
+  ];
+  for (let i = 0; i < 5; i++) {
+    const [bx, by] = spots[(i * 5 + v * 3) % spots.length];
+    tuft(ctx, bx, by, (i + v) % 3);
+  }
+}
+
+/** A 2-3 blade clump, lighter at the tip, anchored at its base. */
+function tuft(ctx, x, y, kind) {
+  const tip = P.grass0, mid = P.grass1, root = mix(P.grass2, P.grass3, 0.6);
+  if (kind === 0) {
+    px(ctx, x, y - 2, tip); px(ctx, x, y - 1, mid); px(ctx, x, y, root);
+    px(ctx, x + 1, y - 1, mid); px(ctx, x + 1, y, root);
+  } else if (kind === 1) {
+    px(ctx, x, y - 1, mid); px(ctx, x, y, root);
+    px(ctx, x + 1, y - 2, tip); px(ctx, x + 1, y - 1, mid); px(ctx, x + 1, y, root);
+    px(ctx, x + 2, y - 1, mid);
+  } else {
+    px(ctx, x, y - 1, tip); px(ctx, x, y, mid);
+    px(ctx, x + 1, y, root);
   }
 }
 

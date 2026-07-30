@@ -109,6 +109,25 @@ async function run() {
     check(`${s}: no new errors`, errors.length === before, errors.slice(before).join(' | ').slice(0, 160));
   }
 
+  console.log('\n▶ audio');
+  await open('scene=overworld');
+  const audio = await page.evaluate(async () => {
+    const { Audio } = await import('/hearth/src/core/audio.js');
+    const want = ['title', 'village', 'field', 'forest', 'river', 'home', 'shop', 'battle'];
+    const missing = want.filter(n => !Audio.hasSong(n));
+    let threw = null;
+    try {
+      Audio.init();
+      Audio.play('village');
+      Audio.sfx('confirm');
+      await new Promise(r => setTimeout(r, 260));   // let the scheduler run real ticks
+      Audio.stop();
+    } catch (e) { threw = String(e.message || e); }
+    return { missing, threw, ready: Audio.ready, playing: Audio.playing };
+  });
+  check('every map and scene has a song', audio.missing.length === 0, audio.missing.join(', '));
+  check('the sequencer runs without throwing', !audio.threw, audio.threw || `ctx ${audio.ready ? 'up' : 'unavailable'}`);
+
   console.log('\n▶ movement actually moves');
   await open('scene=overworld');
   const p0 = await page.evaluate(() => ({ ...window.__game.state.player }));
