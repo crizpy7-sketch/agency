@@ -1,34 +1,56 @@
 {
-  "tagline": "An original Pokemon-style overworld, collectible evolving Guardians, real-world family missions, and a village that visibly grows. Built and judged in adversarial builder/critic loops against the FireRed/LeafGreen and Littlewood quality bar.",
-  "cycle": 1,
+  "tagline": "An original Pokemon-style overworld, collectible evolving Guardians, real-world family missions, and a village that visibly grows. Built against the FireRed/LeafGreen and Littlewood quality bar, and verified by driving the real game rather than reading its code.",
+  "cycle": 2,
   "playUrl": "https://crizpy7-sketch.github.io/agency/hearth/",
   "playLabel": "crizpy7-sketch.github.io/agency/hearth",
   "build": { "commit": "pending", "at": "", "fps": 0, "errors": 0 },
   "pieces": [
-    { "id": "foundation", "name": "Engine foundation", "status": "done", "note": "fixed-timestep loop, layered pixel renderer, input, scenes, audio, save, pixel font, hook bridge" },
-    { "id": "art", "name": "Art system", "status": "building", "note": "tiles + autotiles, characters, 18 guardians, buildings, effects, UI chrome", "round": 1 },
-    { "id": "world", "name": "Overworld", "status": "building", "note": "maps, collision, NPCs, interiors, day/night/seasons, encounters", "round": 1 },
-    { "id": "battle", "name": "Battle + Guardians", "status": "building", "note": "pure engine, 18 species, bonding, evolution, battle scene", "round": 1 },
-    { "id": "village", "name": "Village + Missions", "status": "building", "note": "build mode, upgrade cards, visible transformation, family missions", "round": 1 },
-    { "id": "ui", "name": "UI layer", "status": "building", "note": "typewriter dialogue, menus, HUD, transitions, party, title", "round": 1 },
-    { "id": "harness", "name": "Progress page + regression", "status": "building", "note": "this page, plus the whole-experience capture pass", "round": 1 }
+    { "id": "foundation", "name": "Engine foundation", "status": "done", "note": "60Hz fixed step, layered pixel renderer, input, scenes, procedural audio, save, pixel font, hook bridge" },
+    { "id": "art", "name": "Art system", "status": "done", "note": "420 sprites: tiles + autotiles, cast, 18 Guardians front/back/overworld, buildings per tier, effects, UI chrome", "round": 2 },
+    { "id": "world", "name": "Overworld", "status": "done", "note": "5 connected maps + 3 interiors, tap-turn/hold-walk movement, NPCs, day/night/seasons, encounters", "round": 1 },
+    { "id": "battle", "name": "Battle + Guardians", "status": "done", "note": "deterministic engine, 18 species, bonding, evolution, full presentation layer", "round": 2 },
+    { "id": "village", "name": "Village + build mode", "status": "done", "note": "board with costs/locks/benefits, ghost placement, before/after upgrade card", "round": 2 },
+    { "id": "missions", "name": "Family missions", "status": "done", "note": "warm catalogue, daily rotation, streak that never punishes, corkboard UI", "round": 2 },
+    { "id": "ui", "name": "UI layer", "status": "critique", "note": "title, pause, party, summary, records shipped; dedicated textbox/menu/HUD/transition still on the minimal fallback", "round": 1 },
+    { "id": "audio", "name": "Music", "status": "pending", "note": "sfx kit is live; no songs written yet, so the world is silent between effects" },
+    { "id": "harness", "name": "Progress page + regression", "status": "done", "note": "27-check whole-experience pass, capture harness, this page" }
   ],
   "loops": [
-    { "piece": "art", "stage": "builder", "round": 1, "note": "fresh-context builder painting the full atlas" },
-    { "piece": "world", "stage": "builder", "round": 1, "note": "fresh-context builder on movement feel and map region" },
-    { "piece": "battle", "stage": "builder", "round": 1, "note": "fresh-context builder on engine + presentation" },
-    { "piece": "village", "stage": "builder", "round": 1, "note": "fresh-context builder on build flow and missions" },
-    { "piece": "ui", "stage": "builder", "round": 1, "note": "fresh-context builder on text and menu feel" }
+    { "piece": "ui", "stage": "critic", "round": 1, "note": "dialogue and HUD still running on the foundation fallback rather than a designed textbox" }
   ],
-  "findings": [],
-  "comparisons": [],
+  "findings": [
+    { "piece": "process", "severity": "blocker", "title": "All five builder subagents were killed mid-flight", "detail": "The account hit its monthly spend limit, terminating every parallel builder. Their partial output was salvaged, verified, and completed directly in the main session.", "status": "open" },
+    { "piece": "art", "severity": "major", "title": "Every Guardian shares one egg silhouette", "detail": "The parametric painter gives a coherent family and correct evolution reads, but Leafowl and Aquarabbit have the same body outline. Silhouette variety is the next real gain.", "status": "open" },
+    { "piece": "art", "severity": "minor", "title": "Brow shadow read as spectacles", "detail": "An early pass at more expressive faces put a dark bar above the eyes that looked like glasses on half the roster. Removed.", "status": "fixed" },
+    { "piece": "battle", "severity": "major", "title": "Type badges were anonymous colour blocks", "detail": "A coloured rectangle tells the player nothing. Badges now carry their type name.", "status": "fixed" },
+    { "piece": "battle", "severity": "major", "title": "Player HP readout collided with its panel edge", "detail": "Found by looking at the capture, not the code. Panel re-laid out with the XP bar labelled.", "status": "fixed" },
+    { "piece": "village", "severity": "blocker", "title": "Entering build mode directly threw", "detail": "With no building type the placement validator crashed, and because the first scene was entered before the test API was exposed, that failure blanked the whole harness instead of reporting itself. Both fixed.", "status": "fixed" },
+    { "piece": "village", "severity": "major", "title": "Locked rows said 'locked' and nothing else", "detail": "The model had a reason string all along; the UI was reading the wrong field. Rows now say Needs Village Level 3, or which mission opens them.", "status": "fixed" },
+    { "piece": "village", "severity": "minor", "title": "Benefit text spilled off the panel", "detail": "Now wrapped and clipped to the panel bounds.", "status": "fixed" },
+    { "piece": "missions", "severity": "minor", "title": "Header and tabs collided at fixed spacing", "detail": "'In Emberhollow' overran 'Done'. Both rows are now measured, not evenly spaced.", "status": "fixed" },
+    { "piece": "harness", "severity": "major", "title": "The boot veil bled into every screenshot", "detail": "Captures fired during the 450ms fade, so the loading text sat over the game in every image. The veil now leaves the compositor, and the harness retires it outright.", "status": "fixed" },
+    { "piece": "world", "severity": "major", "title": "Grass reads as a flat green plane", "detail": "The four grass variants are too subtle to break up a large field. Closest remaining gap to the FireRed/LeafGreen readability bar.", "status": "open" },
+    { "piece": "ui", "severity": "major", "title": "Dialogue still runs on the foundation fallback", "detail": "It works and it wraps correctly, but it has no portraits, no speed control, and no designed frame. The dedicated textbox was one of the builders that was cut off.", "status": "open" }
+  ],
+  "comparisons": [
+    { "title": "Village at level 1 vs the same ground after building", "a": { "dir": "shots/village", "label": "board: what to build, what it costs, why it is locked", "pick": "village" }, "b": { "dir": "shots/village", "label": "after placement", "pick": "placed" }, "verdict": "Costs, locks with reasons, and per-tier previews are in place. The visible-transformation pass across a level-1 to level-6 village is the next comparison to run." }
+  ],
   "galleries": [
-    { "title": "Current build", "dir": "shots/tour", "note": "Every entry point, captured by driving the real game through player inputs. Placeholder panels are the pieces still in flight." }
+    { "title": "Current build — full tour", "dir": "shots/tour", "note": "Driven through the real game with player inputs: title, overworld, pause, village board, mission board, party, battle, night." },
+    { "title": "Day, night, and the four seasons", "dir": "shots/daynight", "note": "One in-game minute per real second. Lighting, weather, and seasonal foliage all run off the same clock." },
+    { "title": "Battle", "dir": "shots/battle", "note": "The engine emits events; the scene turns them into drained bars, hit flashes, and shake scaled to effectiveness." },
+    { "title": "Village and missions", "dir": "shots/village", "note": "Build board and placement." },
+    { "title": "The mission board", "dir": "shots/missions", "note": "Real family missions, self-reported and trusted." }
   ],
   "timeline": [
-    { "at": "cycle 1", "label": "Foundation landed", "detail": "Zero-build ES-module engine: 60Hz fixed timestep, 320x180 layered renderer with y-sorted entities, edge-buffered input across keyboard/gamepad/touch, scene stack, procedural audio sequencer, save with migrations, and a hand-built pixel font." },
-    { "at": "cycle 1", "label": "Contracts pinned", "detail": "CONTRACTS.md fixed module ownership and the quality bar; art/names.js pinned every sprite name, the 18-guardian roster, the cast, and building footprints; core/bridge.js gave every cross-piece call a late-bound safe default." },
-    { "at": "cycle 1", "label": "Capture harness online", "detail": "tools/shoot.mjs drives the real game through player inputs and records screenshots, scene state, fps, and console errors. Full tour passes at 58fps with zero errors." },
-    { "at": "cycle 1", "label": "Five builders fanned out", "detail": "Art, overworld, battle, village+missions, and UI each handed to a fresh-context builder with disjoint file ownership." }
+    { "at": "cycle 1", "label": "Foundation landed", "detail": "Zero-build ES-module engine: 60Hz fixed timestep, 320x180 layered renderer with y-sorted entities, edge-buffered input across keyboard/gamepad/touch, scene stack, procedural audio sequencer, save with migrations, hand-built pixel font." },
+    { "at": "cycle 1", "label": "Contracts pinned", "detail": "CONTRACTS.md fixed ownership and the quality bar; art/names.js pinned all 413 sprite names, the 18-Guardian roster, the cast, and building footprints; core/bridge.js gave every cross-piece call a late-bound safe default." },
+    { "at": "cycle 1", "label": "Five builders fanned out", "detail": "Art, overworld, battle, village+missions, and UI each handed to a fresh-context builder with disjoint file ownership." },
+    { "at": "cycle 1", "label": "All five builders killed", "detail": "The account hit its monthly spend limit and every parallel builder terminated mid-task. Their partial output — tiles, sprites, the battle engine, species, moves, missions, the village model, UI frames — was salvaged, syntax-verified, and committed." },
+    { "at": "cycle 2", "label": "Overworld built", "detail": "The critical gap: there was no game to play. Five connected maps plus three interiors, authored with a small DSL; autotiled shorelines and paths; 2x2 tree canopies the player walks behind; movement where a tap turns and a hold walks and steps never stutter." },
+    { "at": "cycle 2", "label": "Art completed", "detail": "18 Guardians from one parametric painter so the roster reads as a family and evolutions read as growth; the full effects kit; UI chrome. All 413 required sprites present." },
+    { "at": "cycle 2", "label": "Battle scene built", "detail": "The engine's event stream turned into presentation: draining bars, hit flashes, shake scaled to effectiveness, an arcing charm for bonding, an evolution overlay." },
+    { "at": "cycle 2", "label": "Village, missions, and the front end", "detail": "Build board, ghost placement, before/after upgrade card, the mission corkboard, title, pause, party, summary, and records." },
+    { "at": "cycle 2", "label": "Whole-experience pass green", "detail": "27/27 checks: every scene reachable and rendering, no console errors, movement and save verified, 60fps. Nine defects found by looking at real captures rather than reading code." }
   ]
 }

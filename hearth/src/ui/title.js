@@ -98,7 +98,7 @@ function titleScene() {
   function update() {
     t++;
     if (embers.length < 24 && t % 6 === 0) {
-      embers.push({ x: 120 + rng.range(-46, 46), y: 150, v: rng.range(0.22, 0.6), p: rng.range(0, 6.28), s: rng.float() < 0.3 ? 2 : 1 });
+      embers.push({ x: R.W / 2 + rng.range(-40, 40), y: 150, v: rng.range(0.22, 0.6), p: rng.range(0, 6.28), s: rng.float() < 0.3 ? 2 : 1 });
     }
     for (let i = embers.length - 1; i >= 0; i--) {
       const e = embers[i];
@@ -130,8 +130,8 @@ function titleScene() {
         const h2 = 142 + Math.sin(x / 31 + 2) * 6;
         R.rect(x, h2, 1, R.H - h2, '#16241a');
       }
-      // The hearth itself
-      const gx = 120, gy = 158;
+      // The hearth itself, centred under the title
+      const gx = R.W / 2, gy = 162;
       R.glow(gx, gy, 46 + Math.sin(t / 22) * 4, 'rgba(255,176,86,0.5)', 0.7);
       for (let i = 0; i < 3; i++) {
         const w = 22 - i * 6;
@@ -179,8 +179,6 @@ function titleScene() {
           { align: 'center', color: P.ui2 });
         R.text(`${saved.party} in your party · ${saved.bonded} bonded · ${saved.mins} min played`, cx, y + 10,
           { align: 'center', color: P.ui2 });
-      } else if (Math.floor(t / 30) % 2 === 0) {
-        R.text('press A', cx, R.H - 22, { align: 'center', color: P.ui2 });
       }
     });
   }
