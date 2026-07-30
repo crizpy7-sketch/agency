@@ -52,6 +52,7 @@ export async function boot({ veil, startBtn, setBoot }) {
     sprites: await soft('./art/sprites.js', 'art/sprites'),
     creatures: await soft('./art/creatures.js', 'art/creatures'),
     effects: await soft('./art/effects.js', 'art/effects'),
+    uiart: await soft('./art/uiart.js', 'art/uiart'),
   };
   for (const m of Object.values(art)) { try { m?.register?.(); } catch (e) { console.error('[art]', e); } }
 
@@ -101,6 +102,8 @@ export async function boot({ veil, startBtn, setBoot }) {
     }
   }
   // Foundation fallbacks fill any gap so every entry point is reachable.
+  const { installMinimalUI } = await import('./dev/minimal-ui.js');
+  loaded.minimalUI = installMinimalUI();
   const { registerFallbacks } = await import('./dev/fallback.js');
   registerFallbacks(loaded);
 

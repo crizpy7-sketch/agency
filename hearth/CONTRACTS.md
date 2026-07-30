@@ -89,6 +89,21 @@ hearth/
 A builder may **read** anything but only **write** its own files. Cross-module needs are
 requested by editing this file's contract section and telling the lead.
 
+### Never import across pieces — use `core/bridge.js`
+
+`bridge.js` holds `UIx` (dialogue, toasts, transitions, panels) and `Hooks` (village,
+missions, battle, world, party) with safe no-op defaults. Each piece calls
+`UIx.install({…})` / `Hooks.install('village', {…})` inside its `register()`. Callers get
+a working stub until the real thing lands, so a half-built piece can never break another.
+
+Foundation ships `dev/minimal-ui.js`, a real (if plain) typewriter box, choice prompt,
+toast, and fade, installed only when `ui/textbox.js` hasn't. So `await UIx.say('hi')`
+works from the first commit.
+
+Every feature module exports `register()`. `main.js` soft-imports the module and calls it.
+`register()` is where you `Scenes.register(...)`, `UIx.install(...)`, `Hooks.install(...)`,
+and (for art) `Atlas.define(...)`.
+
 ## Core contracts
 
 ### `core/loop.js`
