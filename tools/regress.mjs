@@ -71,6 +71,8 @@ async function run() {
     await page.goto(base + '?' + q + '&autostart=1&nogate=1&save=fresh', { waitUntil: 'load' });
     await page.waitForFunction('window.__boot && (window.__boot.ready || window.__boot.error)', null, { timeout: 20000 });
     await page.evaluate('window.__game && window.__game.mute()');
+    // The boot veil fades over 450ms; captures happen sooner, so retire it outright.
+    await page.evaluate(`document.getElementById('veil')?.classList.add('gone','hidden')`);
     await page.evaluate(() => window.__frames(8));
   };
 

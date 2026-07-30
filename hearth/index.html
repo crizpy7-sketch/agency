@@ -27,6 +27,7 @@
     transition:opacity .45s ease; font-size:13px; letter-spacing:.14em; text-transform:uppercase;
   }
   #veil.gone { opacity:0; pointer-events:none; }
+  #veil.hidden { display:none; }
   #veil .mark { font-size:20px; letter-spacing:.3em; color:#f5c877; text-shadow:0 2px 0 #7a4a1c; }
   #bar { width:180px; height:4px; background:#232a38; overflow:hidden; }
   #bar i { display:block; height:100%; width:0%; background:#f5c877; transition:width .2s ease; }
@@ -95,6 +96,10 @@
     window.__boot.step = step; window.__boot.pct = pct;
     bar.style.width = pct + '%'; hint.textContent = step;
   };
+
+  veil.addEventListener('transitionend', () => {
+    if (veil.classList.contains('gone')) veil.classList.add('hidden');
+  });
 
   function fail(err) {
     window.__boot.error = String(err && err.stack || err);

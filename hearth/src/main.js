@@ -121,7 +121,12 @@ export async function boot({ veil, startBtn, setBoot }) {
     Audio.init();
     veil.classList.add('gone');
     const entry = Q.get('scene') || (DEV && Q.get('dev') !== '1' ? Q.get('dev') : null) || 'title';
-    Scenes.reset(Scenes.has(entry) ? entry : 'title');
+    try {
+      Scenes.reset(Scenes.has(entry) ? entry : 'title');
+    } catch (err) {
+      console.error(`[boot] scene "${entry}" failed to enter`, err);
+      Scenes.reset('title');
+    }
     window.__boot.ready = true;
   };
 
@@ -145,6 +150,8 @@ export async function boot({ veil, startBtn, setBoot }) {
     },
   });
 
+  exposeTestApi({ art, ui, world, battle, village, missions, spriteCount: n });
+
   // Autoplay-restricted browsers need a gesture; tests and desktop keyboards get in free.
   if (Q.has('autostart') || Q.get('nogate') === '1') begin();
   else {
@@ -158,7 +165,6 @@ export async function boot({ veil, startBtn, setBoot }) {
   setInterval(() => { if (started && Scenes.topName !== 'title') save(); }, 20000);
   addEventListener('visibilitychange', () => { if (document.hidden && started) save(); });
 
-  exposeTestApi({ art, ui, world, battle, village, missions, spriteCount: n });
   return { started: () => started };
 }
 

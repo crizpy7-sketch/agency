@@ -106,6 +106,8 @@ const run = async () => {
       report.boot = await page.evaluate('window.__boot');
       if (report.boot?.error) report.errors.push('boot: ' + report.boot.error.slice(0, 600));
       await page.evaluate('window.__game && window.__game.mute()');
+    // The boot veil fades over 450ms; captures happen sooner, so retire it outright.
+    await page.evaluate(`document.getElementById('veil')?.classList.add('gone','hidden')`);
       await api.frames(6);
     },
     // Advance N rendered frames (deterministic; no wall-clock sleeps).
