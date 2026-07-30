@@ -27,3 +27,14 @@ Writes numbered PNGs plus `report.json` (shots, scene names, fps, console errors
 `goto(scene)`, `push/pop`, `save/load/resetSave`, `setClock(h)`, `setSeason(s)`,
 `setWeather(w)`, `sprite(name)` -> dataURL, `mute()`.
 Plus `window.__frames(n)` to await N rendered frames deterministically.
+
+## Build the single-file version
+    node tools/bundle.mjs guardians-of-the-hearth.html
+
+Emits one self-contained HTML file: no server, no network, no assets. Each module
+is embedded as source and realised as a Blob URL in dependency order, with import
+specifiers rewritten to point at the blobs — so real ES module semantics are kept
+(one scope per module, live bindings) without flattening, which would collide since
+several modules define their own `ellipse`, `fill`, and `register`.
+
+Verified to run identically from `http://` and from `file://` (double-click).

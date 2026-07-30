@@ -74,10 +74,12 @@ function pauseScene() {
     render() {
       R.layer(LAYER.UI, () => {
         R.rect(0, 0, R.W, R.H, 'rgba(10,8,14,0.35)');
-        const w = 108, x = R.W - w - 6, y = 6, h = ITEMS.length * 15 + 10;
+        // Tightened so the menu and the status card together clear the hint bar —
+        // the last card row used to sit underneath it.
+        const w = 108, x = R.W - w - 6, y = 6, h = ITEMS.length * 13 + 8;
         UIx.panel(x, y, w, h, 'paper');
         ITEMS.forEach((it, i) => {
-          const iy = y + 6 + i * 15;
+          const iy = y + 5 + i * 13;
           const on = i === sel;
           if (on) {
             R.rect(x + 4, iy - 2, w - 8, 13, mix(P.gold1, P.paper0, 0.5));
@@ -88,7 +90,7 @@ function pauseScene() {
         });
 
         // A status card, so the menu also answers "where am I and how am I doing".
-        const cy = y + h + 6, cw = w, ch = 56;
+        const cy = y + h + 5, cw = w, ch = 51;
         UIx.panel(x, cy, cw, ch, 'paper');
         const rows = [
           [S.player.name, `Day ${S.clock.day}`],
@@ -98,7 +100,7 @@ function pauseScene() {
           ['Village', `Lv ${safeLevel()}`],
         ];
         rows.forEach(([k, v], i) => {
-          const ry = cy + 5 + i * 10;
+          const ry = cy + 4 + i * 9;
           R.text(k, x + 8, ry, { color: P.ui2, shadow: false });
           R.text(v, x + cw - 8, ry, { color: P.ink2, shadow: false, align: 'right' });
         });
